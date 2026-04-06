@@ -4,7 +4,7 @@
 #define CompanyName "97 Solutions"
 #define SetupName "DriveInsightSetup"
 #define AppIcon (SourcePath + "Artwork\")
-#define PathToBinary (SourcePath + "..\bin\Release\net10.0")
+#define PathToBinary (SourcePath + "..\DriveInsight\bin\Release\net10.0")
 #define MyAppExeName "DriveInsight.exe"
 
 [Setup]
