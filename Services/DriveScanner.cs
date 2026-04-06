@@ -37,6 +37,54 @@ public sealed class DriveScanner
         }, ct);
     }
 
+    public async Task<List<FileSystemEntry>> GetImmediateChildrenAsync(string folderPath, CancellationToken ct = default)
+    {
+        return await Task.Run(() =>
+        {
+            var result = new List<FileSystemEntry>();
+            var dir = new DirectoryInfo(folderPath);
+
+            try
+            {
+                foreach (var childDir in dir.EnumerateDirectories())
+                {
+                    ct.ThrowIfCancellationRequested();
+                    result.Add(new FileSystemEntry
+                    {
+                        Name = childDir.Name,
+                        FullPath = childDir.FullName,
+                        IsFolder = true
+                    });
+                }
+            }
+            catch { }
+
+            try
+            {
+                foreach (var childFile in dir.EnumerateFiles())
+                {
+                    ct.ThrowIfCancellationRequested();
+                    long size = 0;
+                    try { size = childFile.Length; } catch { }
+
+                    result.Add(new FileSystemEntry
+                    {
+                        Name = childFile.Name,
+                        FullPath = childFile.FullName,
+                        Bytes = size,
+                        IsFolder = false
+                    });
+                }
+            }
+            catch { }
+
+            return result
+                .OrderByDescending(x => x.IsFolder)
+                .ThenBy(x => x.Name)
+                .ToList();
+        }, ct);
+    }
+
     private static long SafeDirSize(DirectoryInfo dir)
     {
         long total = 0;

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,7 +13,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly DriveScanner _scanner = new();
 
     public ObservableCollection<DriveInfo> Drives { get; } = [];
-    public ObservableCollection<FolderStat> TopFolders { get; } = [];
+    public ObservableCollection<FileSystemNode> RootNodes { get; } = [];
 
     [ObservableProperty] private DriveInfo? selectedDrive;
     [ObservableProperty] private bool isBusy;
@@ -31,13 +31,62 @@ public partial class MainWindowViewModel : ViewModelBase
 
         IsBusy = true;
         Status = $"Scanning {SelectedDrive.Name}...";
-        TopFolders.Clear();
+        RootNodes.Clear();
 
         var top = await _scanner.GetTopFoldersAsync(SelectedDrive.RootDirectory.FullName);
 
-        foreach (var item in top) TopFolders.Add(item);
+        foreach (var item in top)
+        {
+            var folderNode = new FileSystemNode
+            {
+                Name = item.Name,
+                FullPath = item.FullPath,
+                IsFolder = true,
+                SizeText = $"{item.SizeGb} GB"
+            };
 
-        Status = $"Done. {TopFolders.Count} folders loaded.";
+            folderNode.Children.Add(CreatePlaceholderNode());
+            RootNodes.Add(folderNode);
+        }
+
+        Status = $"Done. {RootNodes.Count} folders loaded.";
         IsBusy = false;
     }
+
+    public async Task EnsureChildrenLoadedAsync(FileSystemNode? node)
+    {
+        if (node is null || !node.IsFolder || node.HasLoadedChildren) return;
+
+        Status = $"Loading {node.Name}...";
+        node.Children.Clear();
+
+        var children = await _scanner.GetImmediateChildrenAsync(node.FullPath);
+
+        foreach (var child in children)
+        {
+            var childNode = new FileSystemNode
+            {
+                Name = child.Name,
+                FullPath = child.FullPath,
+                IsFolder = child.IsFolder,
+                SizeText = child.IsFolder ? "" : $"{child.Bytes / 1024d / 1024d:N2} MB"
+            };
+
+            if (childNode.IsFolder)
+            {
+                childNode.Children.Add(CreatePlaceholderNode());
+            }
+
+            node.Children.Add(childNode);
+        }
+
+        node.HasLoadedChildren = true;
+        Status = $"Loaded {node.Children.Count} items in {node.Name}.";
+    }
+
+    private static FileSystemNode CreatePlaceholderNode() => new()
+    {
+        Name = "Loading...",
+        IsPlaceholder = true
+    };
 }
