@@ -7,4 +7,6 @@ public sealed class FolderStat
     public string FullPath { get; init; } = "";
 
     public long Bytes { get; init; }
+
+    public string SizeGb => $"{Bytes / (1024d * 1024d * 1024d):N2}";
 }

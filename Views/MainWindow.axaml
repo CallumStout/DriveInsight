@@ -28,7 +28,7 @@
 			<DataGrid.Columns>
 				<DataGridTextColumn Header="Folder" Binding="{Binding Name}" Width="2*"/>
 				<DataGridTextColumn Header="Path" Binding="{Binding FullPath}" Width="4*"/>
-				<DataGridTextColumn Header="Bytes" Binding="{Binding Bytes}" Width="2*"/>
+				<DataGridTextColumn Header="Size (GB)" Binding="{Binding SizeGb}" Width="2*"/>
 			</DataGrid.Columns>
 		</DataGrid>
 	</Grid>
