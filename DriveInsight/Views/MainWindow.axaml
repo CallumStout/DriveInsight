@@ -9,37 +9,38 @@
         d:DesignHeight="760"
         x:Class="DriveInsight.Views.MainWindow"
         Title="DriveInsight"
-        UseLayoutRounding="True">
+        UseLayoutRounding="True"
+		Icon="/Assets/App.ico">
 
-    <Window.DataTemplates>
-        <DataTemplate DataType="viewModels:DashboardPaneViewModel">
-            <views:DashBoardPaneView />
-        </DataTemplate>
+	<Window.DataTemplates>
+		<DataTemplate DataType="viewModels:DashboardPaneViewModel">
+			<views:DashBoardPaneView />
+		</DataTemplate>
 		<DataTemplate DataType="viewModels:DrivesPaneViewModel">
-    <views:DrivesPaneView />
-        </DataTemplate>
-    </Window.DataTemplates>
+			<views:DrivesPaneView />
+		</DataTemplate>
+	</Window.DataTemplates>
 
-    <Grid ColumnDefinitions="240,*">
-        <Border Grid.Column="0" Background="#F3F6FB" BorderBrush="#E3E8F2" BorderThickness="0,0,1,0">
-            <StackPanel Margin="16" Spacing="12">
-                <TextBlock Text="DriveInsight" FontSize="26" FontWeight="SemiBold" Foreground="#1E63FF" />
-                <ItemsControl ItemsSource="{Binding Panes}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <views:PaneRadioButton Text="{Binding Title}"
+	<Grid ColumnDefinitions="240,*">
+		<Border Grid.Column="0" Background="#F3F6FB" BorderBrush="#E3E8F2" BorderThickness="0,0,1,0">
+			<StackPanel Margin="16" Spacing="12">
+				<TextBlock Text="DriveInsight" FontSize="26" FontWeight="SemiBold" Foreground="#1E63FF" />
+				<ItemsControl ItemsSource="{Binding Panes}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<views:PaneRadioButton Text="{Binding Title}"
                                                    IconData="{Binding IconPathData}"
                                                    IsChecked="{Binding IsActive}"
                                                    Command="{Binding $parent[ItemsControl].DataContext.SelectPaneCommand}"
                                                    CommandParameter="{Binding .}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </Border>
-
-        <Border Grid.Column="1" Background="#FCFDFE" Padding="16">
-            <ContentControl Content="{Binding SelectedPane.Content}" />
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</StackPanel>
 		</Border>
-    </Grid>
+
+		<Border Grid.Column="1" Background="#FCFDFE" Padding="16">
+			<ContentControl Content="{Binding SelectedPane.Content}" />
+		</Border>
+	</Grid>
 </Window>
