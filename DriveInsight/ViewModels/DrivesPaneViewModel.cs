@@ -97,6 +97,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
                 Depth = 0,
                 NameIndent = new Thickness(0, 0, 0, 0)
             });
+            FolderRows[^1].Children.Add(CreatePlaceholderRow(1));
         }
 
         Status = $"Done. {FolderRows.Count} folders loaded.";
@@ -154,7 +155,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
 
     public async Task ExpandFolderRowAsync(DriveFolderRowViewModel? row)
     {
-        if (row is null || !row.IsFolder || row.Children.Count > 0)
+        if (row is null || !row.IsFolder || row.HasLoadedChildren)
         {
             return;
         }
@@ -164,6 +165,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
             return;
         }
 
+        row.Children.Clear();
         await EnsureChildrenLoadedAsync(node);
 
         var children = node.Children.Where(c => !c.IsPlaceholder).ToList();
@@ -193,6 +195,33 @@ public partial class DrivesPaneViewModel : ViewModelBase
                 NameIndent = new Thickness((row.Depth + 1) * NameIndentPerDepth, 0, 0, 0),
                 IsChildRow = true
             });
+
+            if (child.IsFolder)
+            {
+                row.Children[^1].Children.Add(CreatePlaceholderRow(row.Depth + 2));
+            }
         }
+
+        row.HasLoadedChildren = true;
     }
+
+    private static DriveFolderRowViewModel CreatePlaceholderRow(int depth) => new()
+    {
+        Name = "Loading...",
+        FullPath = string.Empty,
+        SizeText = string.Empty,
+        UsagePercent = 0,
+        UsageBrush = "#1E63FF",
+        IconPathData = string.Empty,
+        IconContainerSize = 0,
+        IconSize = 0,
+        IconBackground = "Transparent",
+        IconFill = "Transparent",
+        TextSize = 12,
+        UsageBarHeight = 0,
+        IsFolder = false,
+        Depth = depth,
+        NameIndent = new Thickness(0),
+        IsPlaceholder = true
+    };
 }

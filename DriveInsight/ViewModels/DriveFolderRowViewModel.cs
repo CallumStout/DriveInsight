@@ -38,8 +38,13 @@ public partial class DriveFolderRowViewModel : ViewModelBase
 
     public bool IsChildRow { get; init; }
 
+    public bool IsPlaceholder { get; init; }
+
     public ObservableCollection<DriveFolderRowViewModel> Children { get; } = [];
 
     [ObservableProperty]
     private bool isExpanded;
+
+    [ObservableProperty]
+    private bool hasLoadedChildren;
 }

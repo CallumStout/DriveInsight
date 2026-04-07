@@ -9,78 +9,58 @@
              x:Class="DriveInsight.Views.DrivesPaneView">
 
     <UserControl.DataTemplates>
-        <DataTemplate DataType="viewModels:DriveFolderRowViewModel">
-            <StackPanel Margin="0,0,0,6" Spacing="4">
-                <Grid ColumnDefinitions="3*,4*,2*,2*,24" ColumnSpacing="14">
-                    <Grid Grid.Column="0" ColumnDefinitions="34,*" VerticalAlignment="Center" Margin="{Binding NameIndent}">
-                        <Border Width="{Binding IconContainerSize}"
-                                Height="{Binding IconContainerSize}"
-                                Background="{Binding IconBackground}"
-                                CornerRadius="6"
-                                VerticalAlignment="Center">
-                            <Path Width="{Binding IconSize}"
-                                  Height="{Binding IconSize}"
-                                  Stretch="Uniform"
-                                  Fill="{Binding IconFill}"
-                                  Data="{Binding IconPathData}"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Grid.Column="1"
-                                   Margin="10,0,0,0"
-                                   Text="{Binding Name}"
-                                   FontSize="{Binding TextSize}"
-                                   FontWeight="SemiBold"
-                                   VerticalAlignment="Center" />
-                    </Grid>
-
+        <TreeDataTemplate DataType="viewModels:DriveFolderRowViewModel"
+                          ItemsSource="{Binding Children}">
+            <Grid Margin="0,7,0,6"
+                  ColumnDefinitions="3*,4*,2*,2*"
+                  ColumnSpacing="14"
+                  IsVisible="{Binding !IsPlaceholder}">
+                <Grid Grid.Column="0" ColumnDefinitions="34,*" VerticalAlignment="Center">
+                    <Border Width="{Binding IconContainerSize}"
+                            Height="{Binding IconContainerSize}"
+                            Background="{Binding IconBackground}"
+                            CornerRadius="6"
+                            VerticalAlignment="Center">
+                        <Path Width="{Binding IconSize}"
+                              Height="{Binding IconSize}"
+                              Stretch="Uniform"
+                              Fill="{Binding IconFill}"
+                              Data="{Binding IconPathData}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                    </Border>
                     <TextBlock Grid.Column="1"
-                               Text="{Binding FullPath}"
-                               TextTrimming="CharacterEllipsis"
-                               FontSize="{Binding TextSize}"
-                               Foreground="#8492A8"
-                               VerticalAlignment="Center" />
-
-                    <TextBlock Grid.Column="2"
-                               Text="{Binding SizeText}"
+                               Margin="10,0,0,0"
+                               Text="{Binding Name}"
                                FontSize="{Binding TextSize}"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center" />
-
-                    <ProgressBar Grid.Column="3"
-                                 Height="{Binding UsageBarHeight}"
-                                 Minimum="0"
-                                 Maximum="100"
-                                 Value="{Binding UsagePercent}"
-                                 Foreground="{Binding UsageBrush}"
-                                 Background="#E9EDF4"
-                                 BorderThickness="0"
-                                 VerticalAlignment="Center" />
-
-                    <ToggleButton x:Name="FolderChevron"
-                                  Grid.Column="4"
-                                  IsVisible="{Binding IsFolder}"
-                                  IsChecked="{Binding IsExpanded, Mode=OneWay}"
-                                  Click="OnFolderChevronClick"
-                                  VerticalAlignment="Center"
-                                  Width="24"
-                                  Height="24">
-                        <Path x:Name="ChevronPath"
-                              Width="10"
-                              Height="10"
-                              Stretch="Uniform"
-                              Data="M3,6 L8,11 L13,6"
-                              Stroke="#7A879D"
-                              StrokeThickness="1.5"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center" />
-                    </ToggleButton>
                 </Grid>
 
-                <ItemsControl ItemsSource="{Binding Children}"
-                              IsVisible="{Binding IsExpanded}" />
-            </StackPanel>
-        </DataTemplate>
+                <TextBlock Grid.Column="1"
+                           Text="{Binding FullPath}"
+                           TextTrimming="CharacterEllipsis"
+                           FontSize="{Binding TextSize}"
+                           Foreground="#8492A8"
+                           VerticalAlignment="Center" />
+
+                <TextBlock Grid.Column="2"
+                           Text="{Binding SizeText}"
+                           FontSize="{Binding TextSize}"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+
+                <ProgressBar Grid.Column="3"
+                             Height="{Binding UsageBarHeight}"
+                             Minimum="0"
+                             Maximum="100"
+                             Value="{Binding UsagePercent}"
+                             Foreground="{Binding UsageBrush}"
+                             Background="#E9EDF4"
+                             BorderThickness="0"
+                             VerticalAlignment="Center" />
+            </Grid>
+        </TreeDataTemplate>
     </UserControl.DataTemplates>
 
     <UserControl.Styles>
@@ -114,40 +94,19 @@
             <Setter Property="Foreground" Value="#EEF3FF" />
         </Style>
 
-        <Style Selector="ToggleButton#FolderChevron">
+        <Style Selector="TreeView#FoldersTree">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Template">
-                <ControlTemplate>
-                    <ContentPresenter Content="{TemplateBinding Content}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center" />
-                </ControlTemplate>
-            </Setter>
         </Style>
-        <Style Selector="ToggleButton#FolderChevron:pointerover">
+        <Style Selector="TreeView#FoldersTree TreeViewItem:pointerover">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="TreeView#FoldersTree TreeViewItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="TreeView#FoldersTree TreeViewItem:pointerover /template/ Border">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
-        </Style>
-        <Style Selector="ToggleButton#FolderChevron:pressed">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-        </Style>
-        <Style Selector="ToggleButton#FolderChevron:checked">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-        </Style>
-        <Style Selector="ToggleButton#FolderChevron:checked:pointerover">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-        </Style>
-        <Style Selector="ToggleButton#FolderChevron Path#ChevronPath">
-            <Setter Property="Data" Value="M3,6 L8,11 L13,6" />
-        </Style>
-        <Style Selector="ToggleButton#FolderChevron:checked Path#ChevronPath">
-            <Setter Property="Data" Value="M3,11 L8,6 L13,11" />
         </Style>
     </UserControl.Styles>
 
@@ -171,7 +130,7 @@
                        VerticalAlignment="Center" />
         </StackPanel>
 
-        <Grid Grid.Row="1" ColumnDefinitions="3*,4*,2*,2*,24" Margin="8,4,8,0">
+        <Grid Grid.Row="1" ColumnDefinitions="3*,4*,2*,2*" Margin="8,4,8,0">
             <TextBlock Grid.Column="0" Text="FOLDER NAME" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
             <TextBlock Grid.Column="1" Text="LOCATION" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
             <TextBlock Grid.Column="2" Text="SIZE" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
@@ -179,7 +138,10 @@
         </Grid>
 
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding FolderRows}" Margin="8,0,30,0" />
+            <TreeView x:Name="FoldersTree"
+                      Margin="8,0,30,0"
+                      SelectionChanged="OnFoldersTreeSelectionChanged"
+                      ItemsSource="{Binding FolderRows}" />
         </ScrollViewer>
     </Grid>
 </UserControl>

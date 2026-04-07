@@ -24,6 +24,10 @@
 	<Grid ColumnDefinitions="240,*">
 		<Border Grid.Column="0" Background="#F3F6FB" BorderBrush="#E3E8F2" BorderThickness="0,0,1,0">
 			<StackPanel Margin="16" Spacing="12">
+				<Image Source="/Assets/AppLogo.png"
+                       Width="96"
+                       Height="96"
+                       Stretch="Uniform" />
 				<TextBlock Text="DriveInsight" FontSize="26" FontWeight="SemiBold" Foreground="#1E63FF" />
 				<ItemsControl ItemsSource="{Binding Panes}">
 					<ItemsControl.ItemTemplate>
