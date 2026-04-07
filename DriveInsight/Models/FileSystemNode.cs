@@ -10,6 +10,8 @@ public sealed class FileSystemNode
 
     public bool IsFolder { get; init; }
 
+    public long Bytes { get; init; }
+
     public string SizeText { get; init; } = "";
 
     public bool HasLoadedChildren { get; set; }

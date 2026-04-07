@@ -85,6 +85,16 @@ public sealed class DriveScanner
         }, ct);
     }
 
+    public async Task<long> GetFolderSizeAsync(string folderPath, CancellationToken ct = default)
+    {
+        return await Task.Run(() =>
+        {
+            ct.ThrowIfCancellationRequested();
+            var dir = new DirectoryInfo(folderPath);
+            return SafeDirSize(dir);
+        }, ct);
+    }
+
     private static long SafeDirSize(DirectoryInfo dir)
     {
         long total = 0;

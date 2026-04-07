@@ -2,53 +2,184 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:models="using:DriveInsight.Models"
+             xmlns:viewModels="using:DriveInsight.ViewModels"
              mc:Ignorable="d"
-             d:DesignWidth="1000"
-             d:DesignHeight="700"
+             d:DesignWidth="1100"
+             d:DesignHeight="760"
              x:Class="DriveInsight.Views.DrivesPaneView">
 
-	<Grid ColumnDefinitions="300,*" RowDefinitions="Auto,*" ColumnSpacing="16" RowSpacing="16">
-		<StackPanel Grid.Column="0" Margin="0,0,0,8" Spacing="8">
-			<TextBlock Text="Drives" FontSize="18" FontWeight="Bold" />
-			<ComboBox ItemsSource="{Binding Drives}"
-					  SelectedItem="{Binding SelectedDrive}">
-				<ComboBox.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding Name}" />
-					</DataTemplate>
-				</ComboBox.ItemTemplate>
-			</ComboBox>
-			<Button Content="Scan Selected Drive"
-					Command="{Binding ScanSelectedDriveCommand}" />
-			<TextBlock Text="{Binding Status}" />
-		</StackPanel>
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="viewModels:DriveFolderRowViewModel">
+            <StackPanel Margin="0,0,0,6" Spacing="4">
+                <Grid ColumnDefinitions="3*,4*,2*,2*,24" ColumnSpacing="14">
+                    <Grid Grid.Column="0" ColumnDefinitions="34,*" VerticalAlignment="Center" Margin="{Binding NameIndent}">
+                        <Border Width="{Binding IconContainerSize}"
+                                Height="{Binding IconContainerSize}"
+                                Background="{Binding IconBackground}"
+                                CornerRadius="6"
+                                VerticalAlignment="Center">
+                            <Path Width="{Binding IconSize}"
+                                  Height="{Binding IconSize}"
+                                  Stretch="Uniform"
+                                  Fill="{Binding IconFill}"
+                                  Data="{Binding IconPathData}"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Grid.Column="1"
+                                   Margin="10,0,0,0"
+                                   Text="{Binding Name}"
+                                   FontSize="{Binding TextSize}"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center" />
+                    </Grid>
 
-		<TreeView x:Name="FoldersTree"
-				  Grid.Column="1"
-				  Grid.Row="0"
-				  Grid.RowSpan="2"
-				  ItemsSource="{Binding RootNodes}">
-			<TreeView.ItemTemplate>
-				<TreeDataTemplate DataType="models:FileSystemNode"
-								  ItemsSource="{Binding Children}">
-					<Grid ColumnDefinitions="Auto,2*,4*,Auto" Margin="0,2,0,2">
-						<TextBlock Grid.Column="0"
-								   VerticalAlignment="Center"
-								   IsVisible="{Binding IsFolder}" />
-						<TextBlock Grid.Column="1"
-								   VerticalAlignment="Center"
-								   Text="{Binding Name}" />
-						<TextBlock Grid.Column="2"
-								   VerticalAlignment="Center"
-								   Text="{Binding FullPath}" />
-						<TextBlock Grid.Column="3"
-								   VerticalAlignment="Center"
-								   HorizontalAlignment="Right"
-								   Text="{Binding SizeText}" />
-					</Grid>
-				</TreeDataTemplate>
-			</TreeView.ItemTemplate>
-		</TreeView>
-	</Grid>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding FullPath}"
+                               TextTrimming="CharacterEllipsis"
+                               FontSize="{Binding TextSize}"
+                               Foreground="#8492A8"
+                               VerticalAlignment="Center" />
+
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding SizeText}"
+                               FontSize="{Binding TextSize}"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+
+                    <ProgressBar Grid.Column="3"
+                                 Height="{Binding UsageBarHeight}"
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="{Binding UsagePercent}"
+                                 Foreground="{Binding UsageBrush}"
+                                 Background="#E9EDF4"
+                                 BorderThickness="0"
+                                 VerticalAlignment="Center" />
+
+                    <ToggleButton x:Name="FolderChevron"
+                                  Grid.Column="4"
+                                  IsVisible="{Binding IsFolder}"
+                                  IsChecked="{Binding IsExpanded, Mode=OneWay}"
+                                  Click="OnFolderChevronClick"
+                                  VerticalAlignment="Center"
+                                  Width="24"
+                                  Height="24">
+                        <Path x:Name="ChevronPath"
+                              Width="10"
+                              Height="10"
+                              Stretch="Uniform"
+                              Data="M3,6 L8,11 L13,6"
+                              Stroke="#7A879D"
+                              StrokeThickness="1.5"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                    </ToggleButton>
+                </Grid>
+
+                <ItemsControl ItemsSource="{Binding Children}"
+                              IsVisible="{Binding IsExpanded}" />
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <UserControl.Styles>
+        <Style Selector="Button#ScanDriveButton">
+            <Setter Property="Background" Value="#1E63FF" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+        <Style Selector="Button#ScanDriveButton:pointerover">
+            <Setter Property="Background" Value="#4E8DFF" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button#ScanDriveButton /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#1E63FF" />
+            <Setter Property="BorderBrush" Value="#1E63FF" />
+        </Style>
+        <Style Selector="Button#ScanDriveButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#4E8DFF" />
+            <Setter Property="BorderBrush" Value="#4E8DFF" />
+        </Style>
+        <Style Selector="Button#ScanDriveButton:pressed">
+            <Setter Property="Background" Value="#1548BD" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button#ScanDriveButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#1548BD" />
+            <Setter Property="BorderBrush" Value="#1548BD" />
+        </Style>
+        <Style Selector="Button#ScanDriveButton:disabled">
+            <Setter Property="Background" Value="#AFC4F8" />
+            <Setter Property="Foreground" Value="#EEF3FF" />
+        </Style>
+
+        <Style Selector="ToggleButton#FolderChevron">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center" />
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="ToggleButton#FolderChevron:pointerover">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="ToggleButton#FolderChevron:pressed">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="ToggleButton#FolderChevron:checked">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="ToggleButton#FolderChevron:checked:pointerover">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="ToggleButton#FolderChevron Path#ChevronPath">
+            <Setter Property="Data" Value="M3,6 L8,11 L13,6" />
+        </Style>
+        <Style Selector="ToggleButton#FolderChevron:checked Path#ChevronPath">
+            <Setter Property="Data" Value="M3,11 L8,6 L13,11" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="14">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <TextBlock Text="Drives" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" />
+            <ComboBox Width="220"
+                      ItemsSource="{Binding Drives}"
+                      SelectedItem="{Binding SelectedDrive}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button x:Name="ScanDriveButton"
+                    Content="Scan Selected Drive"
+                    Command="{Binding ScanSelectedDriveCommand}" />
+            <TextBlock Text="{Binding Status}"
+                       Foreground="#69758A"
+                       VerticalAlignment="Center" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnDefinitions="3*,4*,2*,2*,24" Margin="8,4,8,0">
+            <TextBlock Grid.Column="0" Text="FOLDER NAME" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
+            <TextBlock Grid.Column="1" Text="LOCATION" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
+            <TextBlock Grid.Column="2" Text="SIZE" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
+            <TextBlock Grid.Column="3" Text="USAGE SHARE" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding FolderRows}" Margin="8,0,30,0" />
+        </ScrollViewer>
+    </Grid>
 </UserControl>

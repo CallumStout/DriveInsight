@@ -28,6 +28,12 @@
     <Compile Update="Views\DrivesPaneView.axaml.cs">
       <DependentUpon>DrivesPaneView.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\MainWindow.axaml.cs">
+      <DependentUpon>MainWindow.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PaneRadioButton.axaml.cs">
+      <DependentUpon>PaneRadioButton.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>
