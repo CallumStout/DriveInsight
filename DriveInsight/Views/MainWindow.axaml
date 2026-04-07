@@ -23,15 +23,18 @@
     <Grid ColumnDefinitions="240,*">
         <Border Grid.Column="0" Background="#F3F6FB" BorderBrush="#E3E8F2" BorderThickness="0,0,1,0">
             <StackPanel Margin="16" Spacing="12">
-                <TextBlock Text="DriveInsight" FontSize="20" FontWeight="SemiBold" />
-                <ListBox ItemsSource="{Binding Panes}"
-                         SelectedItem="{Binding SelectedPane}">
-                    <ListBox.ItemTemplate>
+                <TextBlock Text="DriveInsight" FontSize="26" FontWeight="SemiBold" Foreground="#1E63FF" />
+                <ItemsControl ItemsSource="{Binding Panes}">
+                    <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Title}" Margin="8,6" />
+                            <views:PaneRadioButton Text="{Binding Title}"
+                                                   IconData="{Binding IconPathData}"
+                                                   IsChecked="{Binding IsActive}"
+                                                   Command="{Binding $parent[ItemsControl].DataContext.SelectPaneCommand}"
+                                                   CommandParameter="{Binding .}" />
                         </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </Border>
 
