@@ -20,4 +20,14 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\DashBoardPaneView.axaml.cs">
+      <DependentUpon>DashBoardPaneView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\DrivesPaneView.axaml.cs">
+      <DependentUpon>DrivesPaneView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

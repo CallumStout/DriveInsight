@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:DriveInsight.Models"
+             mc:Ignorable="d"
+             d:DesignWidth="1000"
+             d:DesignHeight="700"
+             x:Class="DriveInsight.Views.DrivesPaneView">
+
+	<Grid ColumnDefinitions="300,*" RowDefinitions="Auto,*" ColumnSpacing="16" RowSpacing="16">
+		<StackPanel Grid.Column="0" Margin="0,0,0,8" Spacing="8">
+			<TextBlock Text="Drives" FontSize="18" FontWeight="Bold" />
+			<ComboBox ItemsSource="{Binding Drives}"
+					  SelectedItem="{Binding SelectedDrive}">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Name}" />
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+			<Button Content="Scan Selected Drive"
+					Command="{Binding ScanSelectedDriveCommand}" />
+			<TextBlock Text="{Binding Status}" />
+		</StackPanel>
+
+		<TreeView x:Name="FoldersTree"
+				  Grid.Column="1"
+				  Grid.Row="0"
+				  Grid.RowSpan="2"
+				  ItemsSource="{Binding RootNodes}">
+			<TreeView.ItemTemplate>
+				<TreeDataTemplate DataType="models:FileSystemNode"
+								  ItemsSource="{Binding Children}">
+					<Grid ColumnDefinitions="Auto,2*,4*,Auto" Margin="0,2,0,2">
+						<TextBlock Grid.Column="0"
+								   VerticalAlignment="Center"
+								   IsVisible="{Binding IsFolder}" />
+						<TextBlock Grid.Column="1"
+								   VerticalAlignment="Center"
+								   Text="{Binding Name}" />
+						<TextBlock Grid.Column="2"
+								   VerticalAlignment="Center"
+								   Text="{Binding FullPath}" />
+						<TextBlock Grid.Column="3"
+								   VerticalAlignment="Center"
+								   HorizontalAlignment="Right"
+								   Text="{Binding SizeText}" />
+					</Grid>
+				</TreeDataTemplate>
+			</TreeView.ItemTemplate>
+		</TreeView>
+	</Grid>
+</UserControl>
