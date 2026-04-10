@@ -9,61 +9,6 @@
              d:DesignHeight="760"
              x:Class="DriveInsight.Views.DrivesPaneView">
 
-    <UserControl.DataTemplates>
-        <TreeDataTemplate DataType="viewModels:DriveFolderRowViewModel"
-                          ItemsSource="{Binding Children}">
-            <Grid Margin="0,7,0,6"
-                  ColumnDefinitions="3*,4*,2*,2*"
-                  ColumnSpacing="14"
-                  IsVisible="{Binding !IsPlaceholder}">
-                <Grid Grid.Column="0" ColumnDefinitions="34,*" VerticalAlignment="Center">
-                    <Border Width="{Binding IconContainerSize}"
-                            Height="{Binding IconContainerSize}"
-                            Background="{Binding IconBackground}"
-                            CornerRadius="6"
-                            VerticalAlignment="Center">
-                        <Path Width="{Binding IconSize}"
-                              Height="{Binding IconSize}"
-                              Stretch="Uniform"
-                              Fill="{Binding IconFill}"
-                              Data="{Binding IconPathData}"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center" />
-                    </Border>
-                    <TextBlock Grid.Column="1"
-                               Margin="10,0,0,0"
-                               Text="{Binding Name}"
-                               FontSize="{Binding TextSize}"
-                               FontWeight="SemiBold"
-                               VerticalAlignment="Center" />
-                </Grid>
-
-                <TextBlock Grid.Column="1"
-                           Text="{Binding FullPath}"
-                           TextTrimming="CharacterEllipsis"
-                           FontSize="{Binding TextSize}"
-                           Foreground="#8492A8"
-                           VerticalAlignment="Center" />
-
-                <TextBlock Grid.Column="2"
-                           Text="{Binding SizeText}"
-                           FontSize="{Binding TextSize}"
-                           FontWeight="SemiBold"
-                           VerticalAlignment="Center" />
-
-                <ProgressBar Grid.Column="3"
-                             Height="{Binding UsageBarHeight}"
-                             Minimum="0"
-                             Maximum="100"
-                             Value="{Binding UsagePercent}"
-                             Foreground="{Binding UsageBrush}"
-                             Background="#E9EDF4"
-                             BorderThickness="0"
-                             VerticalAlignment="Center" />
-            </Grid>
-        </TreeDataTemplate>
-    </UserControl.DataTemplates>
-
     <UserControl.Styles>
         <Style Selector="Button#ScanDriveButton">
             <Setter Property="Background" Value="#1E63FF" />
@@ -95,42 +40,93 @@
             <Setter Property="Foreground" Value="#EEF3FF" />
         </Style>
 
-        <Style Selector="TreeView#FoldersTree">
+        <Style Selector="TreeDataGrid#FoldersGrid">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
         </Style>
-        <Style Selector="TreeView#FoldersTree TreeViewItem:pointerover">
+
+        <Style Selector="ListBox#DriveTabs">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <Style Selector="ListBox#DriveTabs > ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,16,0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#6E7C94" />
+        </Style>
+        <Style Selector="ListBox#DriveTabs > ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Padding" Value="12,4,12,4" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0,0,0,2" />
+        </Style>
+        <Style Selector="ListBox#DriveTabs > ListBoxItem:pointerover">
             <Setter Property="Background" Value="Transparent" />
         </Style>
-        <Style Selector="TreeView#FoldersTree TreeViewItem:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-        <Style Selector="TreeView#FoldersTree TreeViewItem:pointerover /template/ Border">
+        <Style Selector="ListBox#DriveTabs > ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
+        <Style Selector="ListBox#DriveTabs > ListBoxItem:selected">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#1E63FF" />
+        </Style>
+        <Style Selector="ListBox#DriveTabs > ListBoxItem:selected TextBlock">
+            <Setter Property="Foreground" Value="#1E63FF" />
+        </Style>
+        <Style Selector="ListBox#DriveTabs > ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox#DriveTabs > ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="BorderBrush" Value="#1E63FF" />
+            <Setter Property="BorderThickness" Value="0,0,0,2" />
+        </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="14">
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-            <TextBlock Text="Select Disk" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" />
-            <ComboBox Width="100"
-					  MinHeight="30"
-                      ItemsSource="{Binding Drives}"
-                      SelectedItem="{Binding SelectedDrive}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-            <Button x:Name="ScanDriveButton"
-                    Content="Run Scan"
-                    Command="{Binding ScanSelectedDriveCommand}" />
-            <TextBlock Text="{Binding Status}"
-                       Foreground="#69758A"
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="14">
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto,*,Auto"
+              ColumnSpacing="20"
+              VerticalAlignment="Center">
+            <TextBlock Text="Disk Manager"
+                       FontSize="20"
+                       FontWeight="Bold"
                        VerticalAlignment="Center" />
-        </StackPanel>
+
+            <ListBox x:Name="DriveTabs"
+                     Grid.Column="1"
+                     ItemsSource="{Binding Drives}"
+                     SelectedItem="{Binding SelectedDrive}"
+					 Padding="0, 4, 0, 0">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name, StringFormat=Drive {0}}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,6" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        Spacing="12"
+                        VerticalAlignment="Center">
+                <TextBlock Text="{Binding Status}"
+                           Foreground="#69758A"
+                           VerticalAlignment="Center" />
+                <Button x:Name="ScanDriveButton"
+                        Content="Run Scan"
+                        Command="{Binding ScanSelectedDriveCommand}" />
+            </StackPanel>
+        </Grid>
 
         <Border Grid.Row="1"
                 Background="#F7F9FC"
@@ -202,18 +198,9 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="2" ColumnDefinitions="3*,4*,2*,2*" Margin="8,4,8,0">
-            <TextBlock Grid.Column="0" Text="FOLDER NAME" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
-            <TextBlock Grid.Column="1" Text="LOCATION" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
-            <TextBlock Grid.Column="2" Text="SIZE" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
-            <TextBlock Grid.Column="3" Text="USAGE SHARE" FontWeight="Bold" FontSize="12" Foreground="#8A94A8" />
-        </Grid>
-
-        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-            <TreeView x:Name="FoldersTree"
+        <TreeDataGrid Grid.Row="2"
+                      x:Name="FoldersGrid"
                       Margin="8,0,30,0"
-                      SelectionChanged="OnFoldersTreeSelectionChanged"
-                      ItemsSource="{Binding FolderRows}" />
-        </ScrollViewer>
+                      Source="{Binding FolderRowsSource}" />
     </Grid>
 </UserControl>

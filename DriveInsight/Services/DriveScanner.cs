@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,26 +11,50 @@ namespace DriveInsight.Services;
 
 public sealed class DriveScanner
 {
+    private readonly ConcurrentDictionary<string, long> _folderSizeCache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly int SizeScanParallelism = Math.Clamp(Environment.ProcessorCount / 2, 2, 6);
+
     public IEnumerable<DriveInfo> GetReadyDrives() => DriveInfo.GetDrives().Where(d => d.IsReady);
 
     public async Task<List<FolderStat>> GetTopFoldersAsync(string rootPath, int top = 20, CancellationToken ct = default)
     {
         return await Task.Run(() =>
         {
-            var result = new List<FolderStat>();
             var root = new DirectoryInfo(rootPath);
+            var topDirectories = new List<DirectoryInfo>();
 
-            foreach (var dir in root.EnumerateDirectories())
+            try
             {
-                ct.ThrowIfCancellationRequested();
-                long size = SafeDirSize(dir);
+                foreach (var dir in root.EnumerateDirectories())
+                {
+                    ct.ThrowIfCancellationRequested();
+                    if (IsReparsePoint(dir))
+                    {
+                        continue;
+                    }
+
+                    topDirectories.Add(dir);
+                }
+            }
+            catch
+            {
+            }
+
+            var result = new ConcurrentBag<FolderStat>();
+            Parallel.ForEach(topDirectories, new ParallelOptions
+            {
+                CancellationToken = ct,
+                MaxDegreeOfParallelism = SizeScanParallelism
+            }, dir =>
+            {
+                var size = GetFolderSize(dir.FullName, ct);
                 result.Add(new FolderStat
                 {
                     Name = dir.Name,
                     FullPath = dir.FullName,
                     Bytes = size
                 });
-            }
+            });
 
             return result
                 .OrderByDescending(x => x.Bytes)
@@ -49,6 +75,11 @@ public sealed class DriveScanner
                 foreach (var childDir in dir.EnumerateDirectories())
                 {
                     ct.ThrowIfCancellationRequested();
+                    if (IsReparsePoint(childDir))
+                    {
+                        continue;
+                    }
+
                     result.Add(new FileSystemEntry
                     {
                         Name = childDir.Name,
@@ -87,26 +118,118 @@ public sealed class DriveScanner
 
     public async Task<long> GetFolderSizeAsync(string folderPath, CancellationToken ct = default)
     {
+        return await Task.Run(() => GetFolderSize(folderPath, ct), ct);
+    }
+
+    public async Task<Dictionary<string, long>> GetFolderSizesAsync(IEnumerable<string> folderPaths, CancellationToken ct = default)
+    {
         return await Task.Run(() =>
         {
-            ct.ThrowIfCancellationRequested();
-            var dir = new DirectoryInfo(folderPath);
-            return SafeDirSize(dir);
+            var paths = folderPaths
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            var result = new ConcurrentDictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+            Parallel.ForEach(paths, new ParallelOptions
+            {
+                CancellationToken = ct,
+                MaxDegreeOfParallelism = SizeScanParallelism
+            }, path =>
+            {
+                var size = GetFolderSize(path, ct);
+                result[path] = size;
+            });
+
+            return result.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
         }, ct);
     }
 
-    private static long SafeDirSize(DirectoryInfo dir)
+    private long GetFolderSize(string folderPath, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        if (_folderSizeCache.TryGetValue(folderPath, out var cached))
+        {
+            return cached;
+        }
+
+        var dir = new DirectoryInfo(folderPath);
+        if (IsReparsePoint(dir))
+        {
+            _folderSizeCache[folderPath] = 0;
+            return 0;
+        }
+
+        var size = SafeDirSize(dir, ct);
+        _folderSizeCache[folderPath] = size;
+        return size;
+    }
+
+    private static long SafeDirSize(DirectoryInfo dir, CancellationToken ct)
     {
         long total = 0;
-        try
+        var pending = new Stack<DirectoryInfo>();
+        pending.Push(dir);
+
+        while (pending.Count > 0)
         {
-            foreach (var f in dir.EnumerateFiles("*", SearchOption.AllDirectories))
+            ct.ThrowIfCancellationRequested();
+            var current = pending.Pop();
+
+            try
             {
-                try { total += f.Length; } catch { }
+                foreach (var file in current.EnumerateFiles())
+                {
+                    ct.ThrowIfCancellationRequested();
+                    try
+                    {
+                        total = checked(total + file.Length);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                foreach (var childDir in current.EnumerateDirectories())
+                {
+                    ct.ThrowIfCancellationRequested();
+                    try
+                    {
+                        if ((childDir.Attributes & FileAttributes.ReparsePoint) != 0)
+                        {
+                            continue;
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    pending.Push(childDir);
+                }
+            }
+            catch
+            {
             }
         }
-        catch { }
 
         return total;
+    }
+
+    private static bool IsReparsePoint(DirectoryInfo dir)
+    {
+        try
+        {
+            return (dir.Attributes & FileAttributes.ReparsePoint) != 0;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

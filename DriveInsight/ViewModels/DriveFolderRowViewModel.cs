@@ -36,6 +36,8 @@ public partial class DriveFolderRowViewModel : ViewModelBase
 
     public required Thickness NameIndent { get; init; }
 
+    public required double RowOffsetX { get; init; }
+
     public bool IsChildRow { get; init; }
 
     public bool IsPlaceholder { get; init; }
