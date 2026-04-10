@@ -33,12 +33,73 @@ public partial class DrivesPaneViewModel : ViewModelBase
     [ObservableProperty]
     private string status = "Ready";
 
+    private long _totalCapacityBytes;
+    private long _usedSpaceBytes;
+    private long _availableSpaceBytes;
+    private double _usedPercentage;
+
+    public long TotalCapacityBytes
+    {
+        get => _totalCapacityBytes;
+        private set
+        {
+            if (SetProperty(ref _totalCapacityBytes, value))
+            {
+                OnPropertyChanged(nameof(TotalCapacityText));
+            }
+        }
+    }
+
+    public long UsedSpaceBytes
+    {
+        get => _usedSpaceBytes;
+        private set
+        {
+            if (SetProperty(ref _usedSpaceBytes, value))
+            {
+                OnPropertyChanged(nameof(UsedSpaceText));
+            }
+        }
+    }
+
+    public long AvailableSpaceBytes
+    {
+        get => _availableSpaceBytes;
+        private set
+        {
+            if (SetProperty(ref _availableSpaceBytes, value))
+            {
+                OnPropertyChanged(nameof(AvailableSpaceText));
+            }
+        }
+    }
+
+    public double UsedPercentage
+    {
+        get => _usedPercentage;
+        private set
+        {
+            if (SetProperty(ref _usedPercentage, value))
+            {
+                OnPropertyChanged(nameof(UsedPercentageText));
+            }
+        }
+    }
+
+    public string TotalCapacityText => FormatStorage(TotalCapacityBytes);
+    public string UsedSpaceText => FormatStorage(UsedSpaceBytes);
+    public string AvailableSpaceText => FormatStorage(AvailableSpaceBytes);
+    public string UsedPercentageText => $"{UsedPercentage:0}%";
+
     public DrivesPaneViewModel()
     {
         foreach (var d in _scanner.GetReadyDrives())
         {
             Drives.Add(d);
         }
+
+        SelectedDrive = Drives.FirstOrDefault();
+        RefreshDriveCapacity();
     }
 
     [RelayCommand]
@@ -102,6 +163,11 @@ public partial class DrivesPaneViewModel : ViewModelBase
 
         Status = $"Done. {FolderRows.Count} folders loaded.";
         IsBusy = false;
+    }
+
+    partial void OnSelectedDriveChanged(DriveInfo? value)
+    {
+        RefreshDriveCapacity();
     }
 
     public async Task EnsureChildrenLoadedAsync(FileSystemNode? node)
@@ -224,4 +290,47 @@ public partial class DrivesPaneViewModel : ViewModelBase
         NameIndent = new Thickness(0),
         IsPlaceholder = true
     };
+
+    private void RefreshDriveCapacity()
+    {
+        if (SelectedDrive is null || !SelectedDrive.IsReady)
+        {
+            TotalCapacityBytes = 0;
+            UsedSpaceBytes = 0;
+            AvailableSpaceBytes = 0;
+            UsedPercentage = 0;
+            return;
+        }
+
+        var total = SelectedDrive.TotalSize;
+        var available = SelectedDrive.AvailableFreeSpace;
+        var used = Math.Max(0, total - available);
+        var ratio = total > 0 ? used / (double)total : 0d;
+
+        TotalCapacityBytes = total;
+        UsedSpaceBytes = used;
+        AvailableSpaceBytes = available;
+        UsedPercentage = Math.Clamp(ratio * 100d, 0d, 100d);
+    }
+
+    private static string FormatStorage(long bytes)
+    {
+        const double scale = 1024d;
+        if (bytes < scale)
+        {
+            return $"{bytes} B";
+        }
+
+        var units = new[] { "KB", "MB", "GB", "TB", "PB" };
+        var value = bytes / scale;
+        var unitIndex = 0;
+
+        while (value >= scale && unitIndex < units.Length - 1)
+        {
+            value /= scale;
+            unitIndex++;
+        }
+
+        return $"{value:0.##} {units[unitIndex]}";
+    }
 }
