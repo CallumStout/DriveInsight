@@ -16,7 +16,7 @@ DefaultDirName={commonpf64}\{#CompanyName}\{#MyAppName}
 DefaultGroupName={#CompanyName}\{#MyAppName}
 OutputDir=..\Release\97Solutions
 OutputBaseFilename={#SetupName}
-Compression=lzma
+Compression=lzma2/fast
 SolidCompression=yes
 UsePreviousAppDir=yes
 UsePreviousGroup=yes
@@ -29,6 +29,7 @@ WizardSmallImageFile="{#AppIcon}InnoSmall.bmp"
 CloseApplications=yes
 CloseApplicationsFilter={#MyAppExeName}
 RestartApplications=no
+RestartIfNeededByRun=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
