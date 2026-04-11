@@ -145,6 +145,100 @@ public sealed class DriveScanner
         }, ct);
     }
 
+    public async Task<List<FileSystemEntry>> GetTopFilesAcrossDrivesAsync(IEnumerable<DriveInfo> drives, int top = 5, CancellationToken ct = default)
+    {
+        return await Task.Run(() =>
+        {
+            var maxItems = Math.Max(1, top);
+            var topFiles = new PriorityQueue<FileSystemEntry, long>();
+
+            foreach (var drive in drives)
+            {
+                ct.ThrowIfCancellationRequested();
+                if (!drive.IsReady)
+                {
+                    continue;
+                }
+
+                var rootPath = drive.RootDirectory.FullName;
+                var pending = new Stack<DirectoryInfo>();
+                pending.Push(new DirectoryInfo(rootPath));
+
+                while (pending.Count > 0)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    var current = pending.Pop();
+
+                    try
+                    {
+                        foreach (var file in current.EnumerateFiles())
+                        {
+                            ct.ThrowIfCancellationRequested();
+
+                            long size;
+                            try
+                            {
+                                size = file.Length;
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+
+                            var entry = new FileSystemEntry
+                            {
+                                Name = file.Name,
+                                FullPath = file.FullName,
+                                Bytes = size,
+                                IsFolder = false
+                            };
+
+                            if (topFiles.Count < maxItems)
+                            {
+                                topFiles.Enqueue(entry, size);
+                                continue;
+                            }
+
+                            topFiles.TryPeek(out _, out var smallestSize);
+                            if (size <= smallestSize)
+                            {
+                                continue;
+                            }
+
+                            topFiles.Dequeue();
+                            topFiles.Enqueue(entry, size);
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    try
+                    {
+                        foreach (var childDir in current.EnumerateDirectories())
+                        {
+                            ct.ThrowIfCancellationRequested();
+                            if (IsReparsePoint(childDir))
+                            {
+                                continue;
+                            }
+
+                            pending.Push(childDir);
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            return topFiles.UnorderedItems
+                .Select(item => item.Element)
+                .OrderByDescending(item => item.Bytes)
+                .ToList();
+        }, ct);
+    }
+
     private long GetFolderSize(string folderPath, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
