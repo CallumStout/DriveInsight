@@ -1,6 +1,6 @@
 #define MyAppId "{{07746BE0-D25B-4E87-BF61-06BB2A80B5EF}}"
 #define MyAppName "DriveInsight"
-#define MyAppVersion "0.5.0"
+#define MyAppVersion "0.5.1"
 #define CompanyName "97 Solutions"
 #define SetupName "DriveInsightSetup"
 #define AppIcon (SourcePath + "Artwork\")
