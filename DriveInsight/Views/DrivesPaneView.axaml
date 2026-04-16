@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="using:DriveInsight.Controls"
+             xmlns:paneControls="using:DriveInsight.Views.Controls"
              xmlns:viewModels="using:DriveInsight.ViewModels"
              mc:Ignorable="d"
              d:DesignWidth="1100"
@@ -85,122 +86,125 @@
         </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="14">
-        <Grid Grid.Row="0"
-              ColumnDefinitions="Auto,*,Auto"
-              ColumnSpacing="20"
-              VerticalAlignment="Center">
-            <TextBlock Text="Disk Manager"
-                       FontSize="20"
-                       FontWeight="Bold"
-                       VerticalAlignment="Center" />
+    <Grid RowDefinitions="Auto,*"
+          RowSpacing="0">
+        <paneControls:HeaderPane Grid.Row="0"
+                                 Title="Disk Manager"
+                                 ShowRefreshButton="True"
+                                 RefreshToolTip="Refresh"
+                                 RefreshCommand="{Binding RefreshAllCommand}">
+            <paneControls:HeaderPane.CenterContent>
+                <ListBox x:Name="DriveTabs"
+                         ItemsSource="{Binding Drives}"
+                         SelectedItem="{Binding SelectedDrive}"
+                         Padding="0,4,0,0">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name, StringFormat=Drive {0}}"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,6" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </paneControls:HeaderPane.CenterContent>
+            <paneControls:HeaderPane.RightContent>
+                <StackPanel Orientation="Horizontal"
+                            Spacing="12"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}"
+                               Foreground="#69758A"
+                               VerticalAlignment="Center" />
+                    <Button x:Name="ScanDriveButton"
+                            Content="Run Scan"
+                            Command="{Binding ScanSelectedDriveCommand}" />
+                </StackPanel>
+            </paneControls:HeaderPane.RightContent>
+        </paneControls:HeaderPane>
 
-            <ListBox x:Name="DriveTabs"
-                     Grid.Column="1"
-                     ItemsSource="{Binding Drives}"
-                     SelectedItem="{Binding SelectedDrive}"
-					 Padding="0, 4, 0, 0">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name, StringFormat=Drive {0}}"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,6" />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+        <Grid Grid.Row="1"
+              Margin="16,14,16,0"
+              RowDefinitions="Auto,*"
+              RowSpacing="14">
+            <Border Grid.Row="0"
+                    Background="#F7F9FC"
+                    CornerRadius="14"
+                    Padding="18">
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="24">
+                    <Grid Width="170"
+                          Height="170">
+                        <controls:CircularProgress Width="170"
+                                                   Height="170"
+                                                   Value="{Binding UsedPercentage}"
+                                                   Maximum="100"
+                                                   StrokeThickness="15"
+                                                   StartAngle="-90"
+                                                   ProgressBrush="#1E63FF"
+                                                   TrackBrush="#DEE5F0" />
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="2">
+                            <TextBlock Text="{Binding UsedPercentageText}"
+                                       FontSize="34"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="USED"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#7B879A"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Grid>
 
-            <StackPanel Grid.Column="2"
-                        Orientation="Horizontal"
-                        Spacing="12"
-                        VerticalAlignment="Center">
-                <TextBlock Text="{Binding Status}"
-                           Foreground="#69758A"
-                           VerticalAlignment="Center" />
-                <Button x:Name="ScanDriveButton"
-                        Content="Run Scan"
-                        Command="{Binding ScanSelectedDriveCommand}" />
-            </StackPanel>
+                    <Grid Grid.Column="1"
+                          ColumnDefinitions="*,*,*"
+                          ColumnSpacing="22"
+                          VerticalAlignment="Center">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="TOTAL CAPACITY"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#7B879A" />
+                            <TextBlock Text="{Binding TotalCapacityText}"
+                                       FontSize="30"
+                                       FontWeight="Bold" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Spacing="4">
+                            <TextBlock Text="USED SPACE"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#1E63FF" />
+                            <TextBlock Text="{Binding UsedSpaceText}"
+                                       FontSize="24"
+                                       FontWeight="Bold" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2"
+                                    Spacing="4">
+                            <TextBlock Text="AVAILABLE SPACE"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#7B879A" />
+                            <TextBlock Text="{Binding AvailableSpaceText}"
+                                       FontSize="24"
+                                       FontWeight="Bold" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <TreeDataGrid Grid.Row="1"
+                          x:Name="FoldersGrid"
+                          Margin="8,0,30,0"
+                          Source="{Binding FolderRowsSource}" />
         </Grid>
-
-        <Border Grid.Row="1"
-                Background="#F7F9FC"
-                CornerRadius="14"
-                Padding="18">
-            <Grid ColumnDefinitions="Auto,*"
-                  ColumnSpacing="24">
-                <Grid Width="170"
-                      Height="170">
-                    <controls:CircularProgress Width="170"
-                                               Height="170"
-                                               Value="{Binding UsedPercentage}"
-                                               Maximum="100"
-                                               StrokeThickness="15"
-                                               StartAngle="-90"
-                                               ProgressBrush="#1E63FF"
-                                               TrackBrush="#DEE5F0" />
-                    <StackPanel HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Spacing="2">
-                        <TextBlock Text="{Binding UsedPercentageText}"
-                                   FontSize="34"
-                                   FontWeight="Bold"
-                                   HorizontalAlignment="Center" />
-                        <TextBlock Text="USED"
-                                   FontSize="12"
-                                   FontWeight="SemiBold"
-                                   Foreground="#7B879A"
-                                   HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Grid>
-
-                <Grid Grid.Column="1"
-                      ColumnDefinitions="*,*,*"
-                      ColumnSpacing="22"
-                      VerticalAlignment="Center">
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="TOTAL CAPACITY"
-                                   FontSize="12"
-                                   FontWeight="SemiBold"
-                                   Foreground="#7B879A" />
-                        <TextBlock Text="{Binding TotalCapacityText}"
-                                   FontSize="30"
-                                   FontWeight="Bold" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1"
-                                Spacing="4">
-                        <TextBlock Text="USED SPACE"
-                                   FontSize="12"
-                                   FontWeight="SemiBold"
-                                   Foreground="#1E63FF" />
-                        <TextBlock Text="{Binding UsedSpaceText}"
-                                   FontSize="24"
-                                   FontWeight="Bold" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2"
-                                Spacing="4">
-                        <TextBlock Text="AVAILABLE SPACE"
-                                   FontSize="12"
-                                   FontWeight="SemiBold"
-                                   Foreground="#7B879A" />
-                        <TextBlock Text="{Binding AvailableSpaceText}"
-                                   FontSize="24"
-                                   FontWeight="Bold" />
-                    </StackPanel>
-                </Grid>
-            </Grid>
-        </Border>
-
-        <TreeDataGrid Grid.Row="2"
-                      x:Name="FoldersGrid"
-                      Margin="8,0,30,0"
-                      Source="{Binding FolderRowsSource}" />
     </Grid>
 </UserControl>

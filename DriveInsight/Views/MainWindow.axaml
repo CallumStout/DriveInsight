@@ -7,6 +7,8 @@
         mc:Ignorable="d"
         d:DesignWidth="1200"
         d:DesignHeight="760"
+        MinWidth="1100"
+        MinHeight="700"
         x:Class="DriveInsight.Views.MainWindow"
         Title="DriveInsight"
         UseLayoutRounding="True"
@@ -43,7 +45,7 @@
 			</StackPanel>
 		</Border>
 
-		<Border Grid.Column="1" Background="#FCFDFE" Padding="16">
+		<Border Grid.Column="1" Background="#FCFDFE" Padding="0">
 			<ContentControl Content="{Binding SelectedPane.Content}" />
 		</Border>
 	</Grid>

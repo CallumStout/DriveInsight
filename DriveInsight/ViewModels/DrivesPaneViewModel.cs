@@ -19,6 +19,7 @@ namespace DriveInsight.ViewModels;
 public partial class DrivesPaneViewModel : ViewModelBase
 {
     private readonly DriveScanner _scanner = new();
+    private Func<Task>? _refreshDashboardAsync;
     private const string FolderIconPathData = "M3,7 A2,2 0 0 1 5,5 H10 L12,7 H19 A2,2 0 0 1 21,9 V18 A2,2 0 0 1 19,20 H5 A2,2 0 0 1 3,18 Z";
     private const string FileIconPathData = "M6,2 H14 L20,8 V22 H6 Z M14,2 V8 H20";
     private readonly Dictionary<string, FileSystemNode> _nodesByPath = [];
@@ -96,16 +97,61 @@ public partial class DrivesPaneViewModel : ViewModelBase
     public string AvailableSpaceText => FormatStorage(AvailableSpaceBytes);
     public string UsedPercentageText => $"{UsedPercentage:0}%";
 
-    public DrivesPaneViewModel()
+    public DrivesPaneViewModel(Func<Task>? refreshDashboardAsync = null)
     {
+        _refreshDashboardAsync = refreshDashboardAsync;
         FolderRowsSource = CreateFolderRowsSource();
+        RefreshAvailableDrives();
+    }
 
-        foreach (var d in _scanner.GetReadyDrives())
+    public void SetDashboardRefresh(Func<Task> refreshDashboardAsync)
+    {
+        _refreshDashboardAsync = refreshDashboardAsync;
+    }
+
+    [RelayCommand]
+    private async Task RefreshAll()
+    {
+        if (_refreshDashboardAsync is null)
         {
-            Drives.Add(d);
+            RefreshAvailableDrives();
+            return;
         }
 
-        SelectedDrive = Drives.FirstOrDefault();
+        await _refreshDashboardAsync();
+    }
+
+    public void RefreshAvailableDrives()
+    {
+        var previouslySelectedName = SelectedDrive?.Name;
+        var refreshed = _scanner.GetReadyDrives().ToList();
+
+        Drives.Clear();
+        foreach (var drive in refreshed)
+        {
+            Drives.Add(drive);
+        }
+
+        var nextSelection = refreshed.FirstOrDefault(d => string.Equals(d.Name, previouslySelectedName, StringComparison.OrdinalIgnoreCase))
+                            ?? refreshed.FirstOrDefault();
+
+        if (!ReferenceEquals(SelectedDrive, nextSelection))
+        {
+            SelectedDrive = nextSelection;
+        }
+
+        if (SelectedDrive is null)
+        {
+            RootNodes.Clear();
+            FolderRows.Clear();
+            _nodesByPath.Clear();
+            Status = "No drives detected.";
+        }
+        else if (!string.Equals(Status, "Ready", StringComparison.Ordinal))
+        {
+            Status = "Ready";
+        }
+
         RefreshDriveCapacity();
     }
 

@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="DriveInsight.Views.Controls.HeaderPane"
+             x:Name="Root">
+
+    <UserControl.Styles>
+        <Style Selector="Border.HeaderPaneRoot">
+            <Setter Property="Background" Value="#F7F9FD" />
+            <Setter Property="BorderBrush" Value="#E5EBF5" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Padding" Value="12,8" />
+        </Style>
+
+        <Style Selector="TextBlock.HeaderPaneTitle">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="#1A2436" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="Button.HeaderRefreshButton">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="#EEF2F7" />
+            <Setter Property="Foreground" Value="#7A869B" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+
+        <Style Selector="Button.HeaderRefreshButton:pointerover">
+            <Setter Property="Background" Value="#E3EAF3" />
+        </Style>
+
+        <Style Selector="Button.HeaderRefreshButton:pressed">
+            <Setter Property="Background" Value="#D7E0EC" />
+        </Style>
+
+        <Style Selector="Button.HeaderRefreshButton:disabled">
+            <Setter Property="Opacity" Value="0.65" />
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="HeaderPaneRoot">
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto"
+              ColumnSpacing="20"
+              VerticalAlignment="Center">
+            <TextBlock Classes="HeaderPaneTitle"
+                       Text="{Binding Title, ElementName=Root}" />
+
+            <ContentControl Grid.Column="1"
+                            Content="{Binding CenterContent, ElementName=Root}"
+                            VerticalAlignment="Center" />
+
+            <ContentControl Grid.Column="2"
+                            Content="{Binding RightContent, ElementName=Root}"
+                            VerticalAlignment="Center" />
+
+            <Button Grid.Column="3"
+                    Classes="HeaderRefreshButton"
+                    IsVisible="{Binding ShowRefreshButton, ElementName=Root}"
+                    ToolTip.Tip="{Binding RefreshToolTip, ElementName=Root}"
+                    Command="{Binding RefreshCommand, ElementName=Root}">
+                <TextBlock Text="↻"
+                           FontSize="15"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>

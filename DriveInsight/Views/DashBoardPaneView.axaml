@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="using:DriveInsight.Views.Controls"
              xmlns:viewModels="using:DriveInsight.ViewModels"
              mc:Ignorable="d"
              d:DesignWidth="1120"
@@ -22,227 +23,238 @@
         </Style>
     </UserControl.Styles>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Auto">
-        <StackPanel Spacing="18"
-                    Margin="4,4,8,4">
-            <Grid ColumnDefinitions="2.2*,1*"
-                  ColumnSpacing="16">
-                <Border Classes="SectionCard">
-                    <StackPanel Spacing="18">
-                        <TextBlock Text="SYSTEM CAPACITY"
-                                   Foreground="#2B62CC"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   />
+    <Grid RowDefinitions="Auto,*"
+          RowSpacing="0"
+          Margin="0">
+        <controls:HeaderPane Grid.Row="0"
+                             Title="Dashboard"
+                             ShowRefreshButton="True"
+                             RefreshToolTip="Refresh"
+                             RefreshCommand="{Binding RefreshDashboardCommand}" />
 
-                        <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Bottom"
-                                    Spacing="10">
-                            <TextBlock Text="{Binding TotalUsedText}"
-                                       FontSize="54"
-                                       FontWeight="Bold"
-                                       Foreground="#141922" />
-                            <TextBlock Text="USED"
-                                       Margin="0,24,0,0"
-                                       FontSize="22"
-                                       FontWeight="SemiBold"
-                                       Foreground="#5D6980" />
-                            <TextBlock Text="/"
-                                       Margin="0,20,0,0"
-                                       FontSize="28"
-                                       Foreground="#A4AFBF" />
-                            <TextBlock Text="{Binding TotalCapacityText}"
-                                       Margin="0,16,0,0"
-                                       FontSize="34"
-                                       FontWeight="SemiBold"
-                                       Foreground="#3C4657" />
-                            <TextBlock Text="TOTAL"
-                                       Margin="0,25,0,0"
-                                       FontSize="20"
-                                       FontWeight="SemiBold"
-                                       Foreground="#7A879C" />
-                        </StackPanel>
-
-                        <Grid ColumnDefinitions="*,Auto"
-                              ColumnSpacing="10">
-                            <TextBlock Text="TOTAL UTILIZATION"
-                                       Foreground="#6F7D93"
-                                       FontSize="12"
-                                       FontWeight="Bold" />
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding TotalUtilizationText}"
+        <ScrollViewer Grid.Row="1"
+                      Margin="16,14,16,0"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="18">
+                <Grid ColumnDefinitions="2.2*,1*"
+                      ColumnSpacing="16">
+                    <Border Classes="SectionCard"
+                            VerticalAlignment="Top">
+                        <StackPanel Spacing="18">
+                            <TextBlock Text="SYSTEM CAPACITY"
                                        Foreground="#2B62CC"
                                        FontSize="13"
                                        FontWeight="Bold" />
-                        </Grid>
 
-                        <ProgressBar Classes="DashboardProgress"
-                                     Value="{Binding TotalUtilizationPercent}"
-                                     Maximum="100" />
-                    </StackPanel>
-                </Border>
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Bottom"
+                                        Spacing="10">
+                                <TextBlock Text="{Binding TotalUsedText}"
+                                           FontSize="54"
+                                           FontWeight="Bold"
+                                           Foreground="#141922" />
+                                <TextBlock Text="USED"
+                                           Margin="0,24,0,0"
+                                           FontSize="22"
+                                           FontWeight="SemiBold"
+                                           Foreground="#5D6980" />
+                                <TextBlock Text="/"
+                                           Margin="0,20,0,0"
+                                           FontSize="28"
+                                           Foreground="#A4AFBF" />
+                                <TextBlock Text="{Binding TotalCapacityText}"
+                                           Margin="0,16,0,0"
+                                           FontSize="34"
+                                           FontWeight="SemiBold"
+                                           Foreground="#3C4657" />
+                                <TextBlock Text="TOTAL"
+                                           Margin="0,25,0,0"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="#7A879C" />
+                            </StackPanel>
 
-                <ItemsControl Grid.Column="1"
-                              ItemsSource="{Binding DriveBreakdowns}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Spacing="12" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="viewModels:DriveCapacityCardViewModel">
-                            <Border Classes="SectionCard"
-                                    Padding="14">
-                                <StackPanel Spacing="9">
-                                    <Grid ColumnDefinitions="*,Auto"
-                                          ColumnSpacing="8">
-                                        <TextBlock Text="{Binding DriveName}"
-                                                   FontSize="14"
-                                                   FontWeight="Bold"
-                                                   Foreground="#273347" />
-                                        <TextBlock Grid.Column="1"
-                                                   Text="{Binding PercentageText}"
-                                                   FontSize="13"
-                                                   FontWeight="Bold"
-                                                   Foreground="{Binding ProgressBrush}" />
-                                    </Grid>
+                            <Grid ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="10">
+                                <TextBlock Text="TOTAL UTILIZATION"
+                                           Foreground="#6F7D93"
+                                           FontSize="12"
+                                           FontWeight="Bold" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding TotalUtilizationText}"
+                                           Foreground="#2B62CC"
+                                           FontSize="13"
+                                           FontWeight="Bold" />
+                            </Grid>
 
-                                    <ProgressBar Classes="DashboardProgress"
-                                                 Foreground="{Binding ProgressBrush}"
-                                                 Value="{Binding UsedPercent}"
-                                                 Maximum="100" />
+                            <ProgressBar Classes="DashboardProgress"
+                                         Value="{Binding TotalUtilizationPercent}"
+                                         Maximum="100" />
+                        </StackPanel>
+                    </Border>
 
-                                    <TextBlock Text="{Binding UsageText}"
-                                               Foreground="#66758C"
-                                               FontSize="11"
-                                               FontWeight="SemiBold" />
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Grid>
+                    <ItemsControl Grid.Column="1"
+                                  ItemsSource="{Binding DriveBreakdowns}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="12" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="viewModels:DriveCapacityCardViewModel">
+                                <Border Classes="SectionCard"
+                                        Padding="14">
+                                    <StackPanel Spacing="9">
+                                        <Grid ColumnDefinitions="*,Auto"
+                                              ColumnSpacing="8">
+                                            <TextBlock Text="{Binding DriveName}"
+                                                       FontSize="14"
+                                                       FontWeight="Bold"
+                                                       Foreground="#273347" />
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding PercentageText}"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Foreground="{Binding ProgressBrush}" />
+                                        </Grid>
 
-            <Grid ColumnDefinitions="1.45*,1*"
-                  ColumnSpacing="18">
-                <Border Classes="SectionCard"
-                        Grid.Column="0">
-                    <StackPanel Spacing="12">
-                        <Grid ColumnDefinitions="*,Auto"
-                              ColumnSpacing="10">
-                            <TextBlock Text="Largest Items"
+                                        <ProgressBar Classes="DashboardProgress"
+                                                     Foreground="{Binding ProgressBrush}"
+                                                     Value="{Binding UsedPercent}"
+                                                     Maximum="100" />
+
+                                        <TextBlock Text="{Binding UsageText}"
+                                                   Foreground="#66758C"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+
+                <Grid ColumnDefinitions="1.45*,1*"
+                      ColumnSpacing="18">
+                    <Border Classes="SectionCard"
+                            Grid.Column="0">
+                        <StackPanel Spacing="12">
+                            <Grid ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="10">
+                                <TextBlock Text="Largest Items"
+                                           FontSize="34"
+                                           FontWeight="Bold"
+                                           Foreground="#192232" />
+                            </Grid>
+
+                            <TextBlock Text="Scanning for largest files..."
+                                       IsVisible="{Binding IsLoadingLargestFiles}"
+                                       Foreground="#6C7A90"
+                                       FontSize="12"
+                                       FontWeight="SemiBold" />
+
+                            <ItemsControl ItemsSource="{Binding LargestFiles}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="viewModels:LargestFileViewModel">
+                                        <Border Background="#FDFEFF"
+                                                CornerRadius="12"
+                                                Padding="12"
+                                                Margin="0,0,0,8">
+                                            <Grid ColumnDefinitions="Auto,*,Auto"
+                                                  ColumnSpacing="10">
+                                                <Border Width="30"
+                                                        Height="30"
+                                                        CornerRadius="8"
+                                                        Background="#E7EEFC">
+                                                    <TextBlock Text="*"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="#2B62CC"
+                                                               FontSize="8" />
+                                                </Border>
+
+                                                <StackPanel Grid.Column="1"
+                                                            Spacing="2">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontSize="14"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#1A2436"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding FilePath}"
+                                                               FontSize="11"
+                                                               Foreground="#7C899E"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2"
+                                                            HorizontalAlignment="Right"
+                                                            Spacing="2">
+                                                    <TextBlock Text="{Binding SizeText}"
+                                                               FontSize="14"
+                                                               FontWeight="Bold"
+                                                               Foreground="#1A2436"
+                                                               HorizontalAlignment="Right" />
+                                                    <TextBlock Text="{Binding Category}"
+                                                               FontSize="10"
+                                                               FontWeight="Bold"
+                                                               Foreground="#2B62CC"
+                                                               HorizontalAlignment="Right" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="SectionCard"
+                            Grid.Column="1">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Smart Insights"
                                        FontSize="34"
                                        FontWeight="Bold"
                                        Foreground="#192232" />
-                        </Grid>
 
-                        <TextBlock Text="Scanning for largest files..."
-                                   IsVisible="{Binding IsLoadingLargestFiles}"
-                                   Foreground="#6C7A90"
-                                   FontSize="12"
-                                   FontWeight="SemiBold" />
-
-                        <ItemsControl ItemsSource="{Binding LargestFiles}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="viewModels:LargestFileViewModel">
-                                    <Border Background="#FDFEFF"
-                                            CornerRadius="12"
-                                            Padding="12"
-                                            Margin="0,0,0,8">
-                                        <Grid ColumnDefinitions="Auto,*,Auto"
-                                              ColumnSpacing="10">
-                                            <Border Width="30"
-                                                    Height="30"
-                                                    CornerRadius="8"
-                                                    Background="#E7EEFC">
-                                                <TextBlock Text="■"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"
-                                                           Foreground="#2B62CC"
-                                                           FontSize="8" />
-                                            </Border>
-
-                                            <StackPanel Grid.Column="1"
-                                                        Spacing="2">
-                                                <TextBlock Text="{Binding Name}"
-                                                           FontSize="14"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="#1A2436"
-                                                           TextTrimming="CharacterEllipsis" />
-                                                <TextBlock Text="{Binding FilePath}"
-                                                           FontSize="11"
-                                                           Foreground="#7C899E"
-                                                           TextTrimming="CharacterEllipsis" />
-                                            </StackPanel>
-
-                                            <StackPanel Grid.Column="2"
-                                                        HorizontalAlignment="Right"
-                                                        Spacing="2">
-                                                <TextBlock Text="{Binding SizeText}"
-                                                           FontSize="14"
-                                                           FontWeight="Bold"
-                                                           Foreground="#1A2436"
-                                                           HorizontalAlignment="Right" />
-                                                <TextBlock Text="{Binding Category}"
-                                                           FontSize="10"
-                                                           FontWeight="Bold"
-                                                           Foreground="#2B62CC"
-                                                           HorizontalAlignment="Right" />
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-
-                <Border Classes="SectionCard"
-                        Grid.Column="1">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Smart Insights"
-                                   FontSize="34"
-                                   FontWeight="Bold"
-                                   Foreground="#192232" />
-
-                        <ItemsControl ItemsSource="{Binding SmartInsights}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="viewModels:InsightCardViewModel">
-                                    <Border Background="#FFFFFF"
-                                            BorderBrush="{Binding AccentColor}"
-                                            BorderThickness="3,0,0,0"
-                                            CornerRadius="12"
-                                            Padding="12"
-                                            Margin="0,0,0,8">
-                                        <StackPanel Spacing="6">
-                                            <StackPanel Orientation="Horizontal"
-                                                        Spacing="8">
-                                                <TextBlock Text="{Binding Icon}"
+                            <ItemsControl ItemsSource="{Binding SmartInsights}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="viewModels:InsightCardViewModel">
+                                        <Border Background="#FFFFFF"
+                                                BorderBrush="{Binding AccentColor}"
+                                                BorderThickness="3,0,0,0"
+                                                CornerRadius="12"
+                                                Padding="12"
+                                                Margin="0,0,0,8">
+                                            <StackPanel Spacing="6">
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="8">
+                                                    <TextBlock Text="{Binding Icon}"
+                                                               Foreground="{Binding AccentColor}"
+                                                               FontSize="11"
+                                                               Margin="0,2,0,0" />
+                                                    <TextBlock Text="{Binding Title}"
+                                                               Foreground="#1A2436"
+                                                               FontSize="14"
+                                                               FontWeight="Bold" />
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Message}"
+                                                           Foreground="#67778F"
+                                                           FontSize="12"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding ActionText}"
                                                            Foreground="{Binding AccentColor}"
-                                                           FontSize="11"
-                                                           Margin="0,2,0,0" />
-                                                <TextBlock Text="{Binding Title}"
-                                                           Foreground="#1A2436"
-                                                           FontSize="14"
+                                                           FontSize="12"
                                                            FontWeight="Bold" />
                                             </StackPanel>
-                                            <TextBlock Text="{Binding Message}"
-                                                       Foreground="#67778F"
-                                                       FontSize="12"
-                                                       TextWrapping="Wrap" />
-                                            <TextBlock Text="{Binding ActionText}"
-                                                       Foreground="{Binding AccentColor}"
-                                                       FontSize="12"
-                                                       FontWeight="Bold" />
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </StackPanel>
-    </ScrollViewer>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

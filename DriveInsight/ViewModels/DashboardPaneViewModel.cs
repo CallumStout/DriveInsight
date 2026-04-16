@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using DriveInsight.Commands;
 using DriveInsight.Services;
 
 namespace DriveInsight.ViewModels;
@@ -11,13 +13,18 @@ namespace DriveInsight.ViewModels;
 public partial class DashboardPaneViewModel : ViewModelBase
 {
     private readonly DriveScanner _scanner = new();
+    private readonly Func<Task>? _afterRefresh;
 
     public ObservableCollection<DriveCapacityCardViewModel> DriveBreakdowns { get; } = [];
     public ObservableCollection<LargestFileViewModel> LargestFiles { get; } = [];
     public ObservableCollection<InsightCardViewModel> SmartInsights { get; } = [];
+    public IAsyncRelayCommand RefreshDashboardCommand { get; }
 
     [ObservableProperty]
     private bool isLoadingLargestFiles;
+
+    [ObservableProperty]
+    private bool isRefreshing;
 
     [ObservableProperty]
     private long totalCapacityBytes;
@@ -32,13 +39,19 @@ public partial class DashboardPaneViewModel : ViewModelBase
     public string TotalUsedText => FormatStorage(TotalUsedBytes, 1);
     public string TotalUtilizationText => $"{TotalUtilizationPercent:0}%";
 
-    public DashboardPaneViewModel()
+    public DashboardPaneViewModel(Func<Task>? afterRefresh = null)
     {
-        LoadDriveCapacity();
-        _ = LoadBiggestFilesAndInsightsAsync();
+        _afterRefresh = afterRefresh;
+        RefreshDashboardCommand = RefreshCommand.Create(this);
+        _ = RefreshDashboardCommand.ExecuteAsync(null);
     }
 
-    private void LoadDriveCapacity()
+    partial void OnIsRefreshingChanged(bool value)
+    {
+        RefreshDashboardCommand.NotifyCanExecuteChanged();
+    }
+
+    internal void LoadDriveCapacity()
     {
         var drives = _scanner.GetReadyDrives().ToList();
         var totalCapacity = 0L;
@@ -75,7 +88,7 @@ public partial class DashboardPaneViewModel : ViewModelBase
         OnPropertyChanged(nameof(TotalUtilizationText));
     }
 
-    private async Task LoadBiggestFilesAndInsightsAsync()
+    internal async Task LoadBiggestFilesAndInsightsAsync()
     {
         try
         {
@@ -105,6 +118,8 @@ public partial class DashboardPaneViewModel : ViewModelBase
             await BuildSmartInsightsAsync();
         }
     }
+
+    internal Task RefreshLinkedPanesAsync() => _afterRefresh?.Invoke() ?? Task.CompletedTask;
 
     private async Task BuildSmartInsightsAsync()
     {
