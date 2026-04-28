@@ -146,7 +146,7 @@ public partial class DashboardPaneViewModel : ViewModelBase
             .OrderByDescending(d => d.UsedPercent)
             .FirstOrDefault();
 
-        if (mostConstrainedDrive is not null && mostConstrainedDrive.UsedPercent >= 50d)
+        if (mostConstrainedDrive is not null && mostConstrainedDrive.UsedPercent >= 85d)
         {
             SmartInsights.Add(new InsightCardViewModel
             {
