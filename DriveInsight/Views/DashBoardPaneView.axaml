@@ -242,10 +242,13 @@
                                                            Foreground="#67778F"
                                                            FontSize="12"
                                                            TextWrapping="Wrap" />
-                                                <TextBlock Text="{Binding ActionText}"
-                                                           Foreground="{Binding AccentColor}"
-                                                           FontSize="12"
-                                                           FontWeight="Bold" />
+                                                <Button Content="{Binding ActionText}"
+                                                        Command="{Binding ActionCommand}"
+                                                        HorizontalAlignment="Left"
+                                                        Padding="10,5"
+                                                        Foreground="{Binding AccentColor}"
+                                                        FontSize="12"
+                                                        FontWeight="Bold" />
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>

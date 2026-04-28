@@ -1,0 +1,63 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DriveInsight.Views.ConfirmationDialog"
+        Width="440"
+        Height="320"
+        CanResize="False"
+        WindowStartupLocation="Manual"
+        ShowInTaskbar="False"
+        SystemDecorations="None"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent">
+
+    <Grid Background="#660F172A">
+        <Border Width="460"
+                MaxWidth="460"
+                Padding="22"
+                Background="#F8FAFC"
+                BorderBrush="#D8E0EC"
+                BorderThickness="1"
+                CornerRadius="10"
+                BoxShadow="0 18 44 0 #55000000"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel Spacing="16">
+                <TextBlock Name="TitleText"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="#182235"
+                           TextWrapping="Wrap" />
+
+                <TextBlock Name="MessageText"
+                           FontSize="13"
+                           Foreground="#5E6B80"
+                           TextWrapping="Wrap"
+                           LineHeight="20" />
+
+                <Border Background="#FFF1DA"
+                        BorderBrush="#D1791A"
+                        BorderThickness="3,0,0,0"
+                        CornerRadius="8"
+                        Padding="12">
+                    <TextBlock Text="This action removes files from disk and cannot be undone from DriveInsight."
+                               FontSize="12"
+                               Foreground="#6B430C"
+                               TextWrapping="Wrap" />
+                </Border>
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Spacing="10">
+                    <Button Name="CancelButton"
+                            MinWidth="92"
+                            Padding="14,7" />
+                    <Button Name="ConfirmButton"
+                            MinWidth="92"
+                            Padding="14,7"
+                            Background="#D93636"
+                            Foreground="#FFFFFF" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

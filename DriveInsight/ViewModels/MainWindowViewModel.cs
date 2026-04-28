@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DriveInsight.Services;
 
 namespace DriveInsight.ViewModels;
 
@@ -12,8 +13,13 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private PaneItemViewModel? selectedPane;
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(
+        IConfirmationDialogService? confirmationDialog = null,
+        ICleanupReviewDialogService? cleanupReviewDialog = null)
     {
+        var nullDialog = new NullDialogService();
+        confirmationDialog ??= nullDialog;
+        cleanupReviewDialog ??= nullDialog;
         var drivesPaneContent = new DrivesPaneViewModel();
 
         var dashboardPane = new PaneItemViewModel
@@ -22,11 +28,14 @@ public partial class MainWindowViewModel : ViewModelBase
             Title = "Dashboard",
             IconKey = "Home",
             IconPathData = "M2,2 H10 V10 H2 Z M14,2 H22 V10 H14 Z M2,14 H10 V22 H2 Z M14,14 H22 V22 H14 Z",
-            Content = new DashboardPaneViewModel(() =>
-            {
-                drivesPaneContent.RefreshAvailableDrives();
-                return Task.CompletedTask;
-            })
+            Content = new DashboardPaneViewModel(
+                () =>
+                {
+                    drivesPaneContent.RefreshAvailableDrives();
+                    return Task.CompletedTask;
+                },
+                confirmationDialog,
+                cleanupReviewDialog)
         };
         
         var drivesPane = new PaneItemViewModel

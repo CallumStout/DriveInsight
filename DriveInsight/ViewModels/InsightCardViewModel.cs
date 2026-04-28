@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.Input;
+
 namespace DriveInsight.ViewModels;
 
 public enum InsightKind
@@ -12,6 +14,8 @@ public partial class InsightCardViewModel : ViewModelBase
     public required InsightKind Kind { get; init; }
     public required string Title { get; init; }
     public required string Message { get; init; }
+    public required string ActionText { get; init; }
+    public IAsyncRelayCommand? ActionCommand { get; init; }
 
     public string AccentColor => Kind switch
     {

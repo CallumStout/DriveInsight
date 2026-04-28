@@ -1,0 +1,139 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viewModels="using:DriveInsight.ViewModels"
+        x:Class="DriveInsight.Views.CleanupReviewDialog"
+        Width="760"
+        Height="560"
+        CanResize="False"
+        WindowStartupLocation="Manual"
+        ShowInTaskbar="False"
+        SystemDecorations="None"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent">
+
+    <Grid Background="#720F172A">
+        <Border Width="760"
+                MaxWidth="760"
+                Padding="22"
+                Background="#F8FAFC"
+                BorderBrush="#D8E0EC"
+                BorderThickness="1"
+                CornerRadius="10"
+                BoxShadow="0 18 44 0 #55000000"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <Grid RowDefinitions="Auto,Auto,*,Auto"
+                  RowSpacing="14">
+                <StackPanel Spacing="4">
+                    <TextBlock Name="TitleText"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="#182235"
+                               TextWrapping="Wrap" />
+                    <TextBlock Text="Review the suggested items before removing anything. Safer cleanup items are selected by default; personal files are left unchecked."
+                               FontSize="13"
+                               Foreground="#5E6B80"
+                               TextWrapping="Wrap"
+                               LineHeight="20" />
+                </StackPanel>
+
+                <Border Grid.Row="1"
+                        Background="#EDF3FC"
+                        BorderBrush="#C8D6EA"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12">
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="14">
+                        <TextBlock Name="CountText"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#2C3A4F" />
+                        <TextBlock Grid.Column="1"
+                                   Name="SelectedSizeText"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Foreground="#1E63FF" />
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2"
+                        Background="#FFFFFF"
+                        BorderBrush="#E0E6F0"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding Candidates}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="viewModels:CleanupCandidateViewModel">
+                                    <Border BorderBrush="#EEF2F7"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="12">
+                                        <Grid ColumnDefinitions="Auto,*,Auto"
+                                              ColumnSpacing="10">
+                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      VerticalAlignment="Top"
+                                                      Margin="0,2,0,0" />
+
+                                            <StackPanel Grid.Column="1"
+                                                        Spacing="3">
+                                                <Grid ColumnDefinitions="*,Auto"
+                                                      ColumnSpacing="10">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontSize="13"
+                                                               FontWeight="Bold"
+                                                               Foreground="#182235"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <Border Grid.Column="1"
+                                                            Background="#F1F5FB"
+                                                            CornerRadius="10"
+                                                            Padding="8,2">
+                                                        <TextBlock Text="{Binding Risk}"
+                                                                   FontSize="10"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="#526176" />
+                                                    </Border>
+                                                </Grid>
+                                                <TextBlock Text="{Binding Reason}"
+                                                           FontSize="12"
+                                                           Foreground="#617086" />
+                                                <TextBlock Text="{Binding FullPath}"
+                                                           FontSize="11"
+                                                           Foreground="#8996AA"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding SizeText}"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Foreground="#182235"
+                                                       VerticalAlignment="Top" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+
+                <StackPanel Grid.Row="3"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Spacing="10">
+                    <Button Name="CancelButton"
+                            Content="Cancel"
+                            MinWidth="96"
+                            Padding="14,7" />
+                    <Button Name="RemoveButton"
+                            Content="Remove selected"
+                            MinWidth="132"
+                            Padding="14,7"
+                            Background="#D93636"
+                            Foreground="#FFFFFF" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
