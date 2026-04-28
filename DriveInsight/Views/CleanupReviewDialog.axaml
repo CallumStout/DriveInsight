@@ -2,8 +2,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewModels="using:DriveInsight.ViewModels"
         x:Class="DriveInsight.Views.CleanupReviewDialog"
-        Width="760"
-        Height="560"
         CanResize="False"
         WindowStartupLocation="Manual"
         ShowInTaskbar="False"
@@ -14,6 +12,8 @@
     <Grid Background="#720F172A">
         <Border Width="760"
                 MaxWidth="760"
+                Height="640"
+                MaxHeight="640"
                 Padding="22"
                 Background="#F8FAFC"
                 BorderBrush="#D8E0EC"
@@ -125,11 +125,15 @@
                     <Button Name="CancelButton"
                             Content="Cancel"
                             MinWidth="96"
-                            Padding="14,7" />
+                            Padding="14,7"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center" />
                     <Button Name="RemoveButton"
                             Content="Remove selected"
                             MinWidth="132"
                             Padding="14,7"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
                             Background="#D93636"
                             Foreground="#FFFFFF" />
                 </StackPanel>

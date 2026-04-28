@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DriveInsight.Models;
 using DriveInsight.Services;
+using DriveInsight.Utilities;
 
 namespace DriveInsight.ViewModels;
 
@@ -92,9 +93,9 @@ public partial class DrivesPaneViewModel : ViewModelBase
         }
     }
 
-    public string TotalCapacityText => FormatStorage(TotalCapacityBytes);
-    public string UsedSpaceText => FormatStorage(UsedSpaceBytes);
-    public string AvailableSpaceText => FormatStorage(AvailableSpaceBytes);
+    public string TotalCapacityText => StorageFormatter.Format(TotalCapacityBytes, 2);
+    public string UsedSpaceText => StorageFormatter.Format(UsedSpaceBytes, 2);
+    public string AvailableSpaceText => StorageFormatter.Format(AvailableSpaceBytes, 2);
     public string UsedPercentageText => $"{UsedPercentage:0}%";
 
     public DrivesPaneViewModel(Func<Task>? refreshDashboardAsync = null)
@@ -123,6 +124,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
 
     public void RefreshAvailableDrives()
     {
+        _scanner.ClearCache();
         var previouslySelectedName = SelectedDrive?.Name;
         var refreshed = _scanner.GetReadyDrives().ToList();
 
@@ -164,6 +166,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
         }
 
         IsBusy = true;
+        _scanner.ClearCache();
         Status = $"Scanning {SelectedDrive.Name}...";
         RootNodes.Clear();
         FolderRows.Clear();
@@ -184,7 +187,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
                 FullPath = item.FullPath,
                 IsFolder = true,
                 Bytes = item.Bytes,
-                SizeText = $"{item.SizeGb} GB"
+                SizeText = StorageFormatter.Format(item.Bytes, 2)
             };
 
             folderNode.Children.Add(CreatePlaceholderNode());
@@ -197,7 +200,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
             {
                 Name = item.Name,
                 FullPath = item.FullPath,
-                SizeText = $"{item.SizeGb} GB",
+                SizeText = StorageFormatter.Format(item.Bytes, 2),
                 UsagePercent = clampedRatio * 100.0,
                 UsageBrush = clampedRatio >= 0.3 ? "#C75000" : "#1E63FF",
                 IconPathData = FolderIconPathData,
@@ -258,9 +261,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
                 FullPath = child.FullPath,
                 IsFolder = child.IsFolder,
                 Bytes = resolvedBytes,
-                SizeText = child.IsFolder
-                    ? $"{resolvedBytes / 1024d / 1024d / 1024d:N2} GB"
-                    : $"{resolvedBytes / 1024d / 1024d:N2} MB"
+                SizeText = StorageFormatter.Format(resolvedBytes, 2)
             };
 
             if (childNode.IsFolder)
@@ -374,27 +375,6 @@ public partial class DrivesPaneViewModel : ViewModelBase
         UsedSpaceBytes = used;
         AvailableSpaceBytes = available;
         UsedPercentage = Math.Clamp(ratio * 100d, 0d, 100d);
-    }
-
-    private static string FormatStorage(long bytes)
-    {
-        const double scale = 1024d;
-        if (bytes < scale)
-        {
-            return $"{bytes} B";
-        }
-
-        var units = new[] { "KB", "MB", "GB", "TB", "PB" };
-        var value = bytes / scale;
-        var unitIndex = 0;
-
-        while (value >= scale && unitIndex < units.Length - 1)
-        {
-            value /= scale;
-            unitIndex++;
-        }
-
-        return $"{value:0.##} {units[unitIndex]}";
     }
 
     private static DriveFolderRowViewModel CreatePlaceholderRow(int depth) => new()

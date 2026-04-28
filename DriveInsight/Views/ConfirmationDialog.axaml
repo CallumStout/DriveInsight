@@ -50,10 +50,14 @@
                             Spacing="10">
                     <Button Name="CancelButton"
                             MinWidth="92"
-                            Padding="14,7" />
+                            Padding="14,7"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center" />
                     <Button Name="ConfirmButton"
                             MinWidth="92"
                             Padding="14,7"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
                             Background="#D93636"
                             Foreground="#FFFFFF" />
                 </StackPanel>

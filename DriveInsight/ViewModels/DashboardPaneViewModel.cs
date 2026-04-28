@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DriveInsight.Commands;
 using DriveInsight.Services;
+using DriveInsight.Utilities;
 
 namespace DriveInsight.ViewModels;
 
@@ -40,8 +41,8 @@ public partial class DashboardPaneViewModel : ViewModelBase
     [ObservableProperty]
     private double totalUtilizationPercent;
 
-    public string TotalCapacityText => FormatStorage(TotalCapacityBytes, 1);
-    public string TotalUsedText => FormatStorage(TotalUsedBytes, 1);
+    public string TotalCapacityText => StorageFormatter.Format(TotalCapacityBytes);
+    public string TotalUsedText => StorageFormatter.Format(TotalUsedBytes);
     public string TotalUtilizationText => $"{TotalUtilizationPercent:0}%";
     private static string WindowsOldPath => Path.Combine(Path.GetPathRoot(Environment.SystemDirectory) ?? "C:\\", "Windows.old");
 
@@ -145,7 +146,7 @@ public partial class DashboardPaneViewModel : ViewModelBase
             .OrderByDescending(d => d.UsedPercent)
             .FirstOrDefault();
 
-        if (mostConstrainedDrive is not null && mostConstrainedDrive.UsedPercent >= 85d)
+        if (mostConstrainedDrive is not null && mostConstrainedDrive.UsedPercent >= 50d)
         {
             SmartInsights.Add(new InsightCardViewModel
             {
@@ -171,7 +172,7 @@ public partial class DashboardPaneViewModel : ViewModelBase
                     {
                         Kind = InsightKind.Warning,
                         Title = "Redundant OS Files",
-                        Message = $"Windows.old is taking {FormatStorage(windowsOldSize, 1)}. This can be safely removed.",
+                        Message = $"Windows.old is taking {StorageFormatter.Format(windowsOldSize)}. This can be safely removed.",
                         ActionText = "Remove",
                         ActionCommand = new AsyncRelayCommand(RemoveWindowsOldAsync, () => !IsRefreshing)
                     });
@@ -289,6 +290,7 @@ public partial class DashboardPaneViewModel : ViewModelBase
 
     private async Task RefreshAfterCleanupAsync()
     {
+        _scanner.ClearCache();
         LoadDriveCapacity();
         await LoadBiggestFilesAndInsightsAsync();
         await RefreshLinkedPanesAsync();
@@ -326,24 +328,4 @@ public partial class DashboardPaneViewModel : ViewModelBase
         };
     }
 
-    private static string FormatStorage(long bytes, int decimals)
-    {
-        const double scale = 1024d;
-        if (bytes < scale)
-        {
-            return $"{bytes} B";
-        }
-
-        var units = new[] { "KB", "MB", "GB", "TB", "PB" };
-        var value = bytes / scale;
-        var unitIndex = 0;
-
-        while (value >= scale && unitIndex < units.Length - 1)
-        {
-            value /= scale;
-            unitIndex++;
-        }
-
-        return $"{value.ToString($"F{Math.Max(0, decimals)}")} {units[unitIndex]}";
-    }
 }

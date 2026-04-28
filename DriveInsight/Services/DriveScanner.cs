@@ -16,6 +16,8 @@ public sealed class DriveScanner
 
     public IEnumerable<DriveInfo> GetReadyDrives() => DriveInfo.GetDrives().Where(d => d.IsReady);
 
+    public void ClearCache() => _folderSizeCache.Clear();
+
     public async Task<List<FolderStat>> GetTopFoldersAsync(string rootPath, int top = 20, CancellationToken ct = default)
     {
         return await Task.Run(() =>

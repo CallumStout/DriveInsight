@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using Avalonia.Controls;
 using DriveInsight.Services;
+using DriveInsight.Utilities;
 using DriveInsight.ViewModels;
 
 namespace DriveInsight.Views;
@@ -54,28 +55,7 @@ public partial class CleanupReviewDialog : Window
     {
         var selected = Candidates.Where(candidate => candidate.IsSelected).ToList();
         var selectedBytes = selected.Sum(candidate => candidate.Candidate.SizeBytes);
-        SelectedSizeText.Text = $"{FormatStorage(selectedBytes, 1)} selected";
+        SelectedSizeText.Text = $"{StorageFormatter.Format(selectedBytes)} selected";
         RemoveButton.IsEnabled = selected.Count > 0;
-    }
-
-    private static string FormatStorage(long bytes, int decimals)
-    {
-        const double scale = 1024d;
-        if (bytes < scale)
-        {
-            return $"{bytes} B";
-        }
-
-        var units = new[] { "KB", "MB", "GB", "TB", "PB" };
-        var value = bytes / scale;
-        var unitIndex = 0;
-
-        while (value >= scale && unitIndex < units.Length - 1)
-        {
-            value /= scale;
-            unitIndex++;
-        }
-
-        return $"{value.ToString($"F{decimals}")} {units[unitIndex]}";
     }
 }

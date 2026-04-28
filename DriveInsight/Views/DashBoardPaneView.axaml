@@ -245,7 +245,11 @@
                                                 <Button Content="{Binding ActionText}"
                                                         Command="{Binding ActionCommand}"
                                                         HorizontalAlignment="Left"
+                                                        HorizontalContentAlignment="Center"
+                                                        VerticalContentAlignment="Center"
                                                         Padding="10,5"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
                                                         Foreground="{Binding AccentColor}"
                                                         FontSize="12"
                                                         FontWeight="Bold" />
