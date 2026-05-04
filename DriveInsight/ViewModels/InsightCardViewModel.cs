@@ -11,11 +11,13 @@ public enum InsightKind
 
 public partial class InsightCardViewModel : ViewModelBase
 {
+    public required string Id { get; init; }
     public required InsightKind Kind { get; init; }
     public required string Title { get; init; }
     public required string Message { get; init; }
     public required string ActionText { get; init; }
     public IAsyncRelayCommand? ActionCommand { get; init; }
+    public IRelayCommand? DismissCommand { get; set; }
 
     public string AccentColor => Kind switch
     {

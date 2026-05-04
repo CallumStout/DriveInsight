@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -19,6 +20,7 @@ public partial class DashboardPaneViewModel : ViewModelBase
     private readonly CleanupRemovalService _cleanupRemoval = new();
     private readonly IConfirmationDialogService _confirmationDialog;
     private readonly ICleanupReviewDialogService _cleanupReviewDialog;
+    private readonly HashSet<string> _dismissedInsightIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly Func<Task>? _afterRefresh;
 
     public ObservableCollection<DriveCapacityCardViewModel> DriveBreakdowns { get; } = [];
@@ -148,8 +150,9 @@ public partial class DashboardPaneViewModel : ViewModelBase
 
         if (mostConstrainedDrive is not null && mostConstrainedDrive.UsedPercent >= 85d)
         {
-            SmartInsights.Add(new InsightCardViewModel
+            AddSmartInsight(new InsightCardViewModel
             {
+                Id = $"drive-critical:{mostConstrainedDrive.DriveName}",
                 Kind = InsightKind.Critical,
                 Title = $"Drive {mostConstrainedDrive.DriveName} Critical",
                 Message = $"Storage is over {mostConstrainedDrive.UsedPercent:0}% full. System performance may be impacted soon.",
@@ -168,8 +171,9 @@ public partial class DashboardPaneViewModel : ViewModelBase
                 var windowsOldSize = await _scanner.GetFolderSizeAsync(windowsOldPath);
                 if (windowsOldSize > 0)
                 {
-                    SmartInsights.Add(new InsightCardViewModel
+                    AddSmartInsight(new InsightCardViewModel
                     {
+                        Id = $"windows-old:{windowsOldPath}",
                         Kind = InsightKind.Warning,
                         Title = "Redundant OS Files",
                         Message = $"Windows.old is taking {StorageFormatter.Format(windowsOldSize)}. This can be safely removed.",
@@ -186,8 +190,9 @@ public partial class DashboardPaneViewModel : ViewModelBase
         var largestFile = LargestFiles.OrderByDescending(file => file.SizeBytes).FirstOrDefault();
         if (largestFile is not null)
         {
-            SmartInsights.Add(new InsightCardViewModel
+            AddSmartInsight(new InsightCardViewModel
             {
+                Id = $"largest-file:{largestFile.FilePath}",
                 Kind = InsightKind.Tip,
                 Title = "Optimization Tip",
                 Message = $"Archive or move {largestFile.Name} to recover up to {largestFile.SizeText} quickly.",
@@ -200,14 +205,32 @@ public partial class DashboardPaneViewModel : ViewModelBase
 
         if (SmartInsights.Count == 0)
         {
-            SmartInsights.Add(new InsightCardViewModel
+            AddSmartInsight(new InsightCardViewModel
             {
+                Id = "no-critical-alerts",
                 Kind = InsightKind.Tip,
                 Title = "No Critical Alerts",
                 Message = "Your drives look healthy. Run a scan to surface optimization opportunities.",
                 ActionText = "N/A"
             });
         }
+    }
+
+    private void AddSmartInsight(InsightCardViewModel insight)
+    {
+        if (_dismissedInsightIds.Contains(insight.Id))
+        {
+            return;
+        }
+
+        insight.DismissCommand = new RelayCommand(() => DismissInsight(insight));
+        SmartInsights.Add(insight);
+    }
+
+    private void DismissInsight(InsightCardViewModel insight)
+    {
+        _dismissedInsightIds.Add(insight.Id);
+        SmartInsights.Remove(insight);
     }
 
     private async Task RemoveWindowsOldAsync()

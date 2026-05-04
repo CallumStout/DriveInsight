@@ -242,17 +242,31 @@
                                                            Foreground="#67778F"
                                                            FontSize="12"
                                                            TextWrapping="Wrap" />
-                                                <Button Content="{Binding ActionText}"
-                                                        Command="{Binding ActionCommand}"
-                                                        HorizontalAlignment="Left"
-                                                        HorizontalContentAlignment="Center"
-                                                        VerticalContentAlignment="Center"
-                                                        Padding="10,5"
-                                                        Background="Transparent"
-                                                        BorderThickness="0"
-                                                        Foreground="{Binding AccentColor}"
-                                                        FontSize="12"
-                                                        FontWeight="Bold" />
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="10">
+                                                    <Button Content="{Binding ActionText}"
+                                                            Command="{Binding ActionCommand}"
+                                                            HorizontalAlignment="Left"
+                                                            HorizontalContentAlignment="Center"
+                                                            VerticalContentAlignment="Center"
+                                                            Padding="10,5"
+                                                            Background="Transparent"
+                                                            BorderThickness="0"
+                                                            Foreground="{Binding AccentColor}"
+                                                            FontSize="12"
+                                                            FontWeight="Bold" />
+                                                    <Button Content="Ignore"
+                                                            Command="{Binding DismissCommand}"
+                                                            HorizontalAlignment="Left"
+                                                            HorizontalContentAlignment="Center"
+                                                            VerticalContentAlignment="Center"
+                                                            Padding="10,5"
+                                                            Background="Transparent"
+                                                            BorderThickness="0"
+                                                            Foreground="#7A879C"
+                                                            FontSize="12"
+                                                            FontWeight="SemiBold" />
+                                                </StackPanel>
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
