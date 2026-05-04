@@ -201,6 +201,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
                 Name = item.Name,
                 FullPath = item.FullPath,
                 SizeText = StorageFormatter.Format(item.Bytes, 2),
+                SizeBytes = item.Bytes,
                 UsagePercent = clampedRatio * 100.0,
                 UsageBrush = clampedRatio >= 0.3 ? "#C75000" : "#1E63FF",
                 IconPathData = FolderIconPathData,
@@ -314,6 +315,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
                     Name = child.Name,
                     FullPath = child.FullPath,
                     SizeText = child.SizeText,
+                    SizeBytes = child.Bytes,
                     UsagePercent = clampedRatio * 100.0,
                     UsageBrush = clampedRatio >= 0.3 ? "#C75000" : "#1E63FF",
                     IconPathData = child.IsFolder ? FolderIconPathData : FileIconPathData,
@@ -382,6 +384,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
         Name = "Loading...",
         FullPath = string.Empty,
         SizeText = string.Empty,
+        SizeBytes = 0,
         UsagePercent = 0,
         UsageBrush = "#1E63FF",
         IconPathData = FolderIconPathData,
@@ -430,15 +433,45 @@ public partial class DrivesPaneViewModel : ViewModelBase
             new TextColumn<DriveFolderRowViewModel, string>(
                 "SIZE",
                 row => row.SizeText,
-                new GridLength(2, GridUnitType.Star)));
+                new GridLength(2, GridUnitType.Star),
+                new TextColumnOptions<DriveFolderRowViewModel>
+                {
+                    CompareAscending = CompareSizeAscending,
+                    CompareDescending = CompareSizeDescending
+                }));
 
         source.Columns.Add(
             new TextColumn<DriveFolderRowViewModel, string>(
                 "USAGE SHARE",
                 row => $"{row.UsagePercent:0.##}%",
-                new GridLength(2, GridUnitType.Star)));
+                new GridLength(2, GridUnitType.Star),
+                new TextColumnOptions<DriveFolderRowViewModel>
+                {
+                    CompareAscending = CompareUsageAscending,
+                    CompareDescending = CompareUsageDescending
+                }));
 
         return source;
+    }
+
+    private static int CompareSizeAscending(DriveFolderRowViewModel? left, DriveFolderRowViewModel? right)
+    {
+        return Nullable.Compare(left?.SizeBytes, right?.SizeBytes);
+    }
+
+    private static int CompareSizeDescending(DriveFolderRowViewModel? left, DriveFolderRowViewModel? right)
+    {
+        return Nullable.Compare(right?.SizeBytes, left?.SizeBytes);
+    }
+
+    private static int CompareUsageAscending(DriveFolderRowViewModel? left, DriveFolderRowViewModel? right)
+    {
+        return Nullable.Compare(left?.UsagePercent, right?.UsagePercent);
+    }
+
+    private static int CompareUsageDescending(DriveFolderRowViewModel? left, DriveFolderRowViewModel? right)
+    {
+        return Nullable.Compare(right?.UsagePercent, left?.UsagePercent);
     }
 
     private IEnumerable<DriveFolderRowViewModel> GetRowChildren(DriveFolderRowViewModel row)

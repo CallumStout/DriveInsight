@@ -30,7 +30,7 @@ public sealed class DriveScanner
                 foreach (var dir in root.EnumerateDirectories())
                 {
                     ct.ThrowIfCancellationRequested();
-                    if (IsReparsePoint(dir))
+                    if (SystemPathExclusions.ShouldExcludeDirectory(dir))
                     {
                         continue;
                     }
@@ -77,7 +77,7 @@ public sealed class DriveScanner
                 foreach (var childDir in dir.EnumerateDirectories())
                 {
                     ct.ThrowIfCancellationRequested();
-                    if (IsReparsePoint(childDir))
+                    if (SystemPathExclusions.ShouldExcludeDirectory(childDir))
                     {
                         continue;
                     }
@@ -97,6 +97,11 @@ public sealed class DriveScanner
                 foreach (var childFile in dir.EnumerateFiles())
                 {
                     ct.ThrowIfCancellationRequested();
+                    if (SystemPathExclusions.ShouldExcludeFile(childFile))
+                    {
+                        continue;
+                    }
+
                     long size = 0;
                     try { size = childFile.Length; } catch { }
 
@@ -176,6 +181,10 @@ public sealed class DriveScanner
                         foreach (var file in current.EnumerateFiles())
                         {
                             ct.ThrowIfCancellationRequested();
+                            if (SystemPathExclusions.ShouldExcludeFile(file))
+                            {
+                                continue;
+                            }
 
                             long size;
                             try
@@ -220,7 +229,7 @@ public sealed class DriveScanner
                         foreach (var childDir in current.EnumerateDirectories())
                         {
                             ct.ThrowIfCancellationRequested();
-                            if (IsReparsePoint(childDir))
+                            if (SystemPathExclusions.ShouldExcludeDirectory(childDir))
                             {
                                 continue;
                             }
@@ -250,7 +259,7 @@ public sealed class DriveScanner
         }
 
         var dir = new DirectoryInfo(folderPath);
-        if (IsReparsePoint(dir))
+        if (SystemPathExclusions.ShouldExcludeDirectory(dir))
         {
             _folderSizeCache[folderPath] = 0;
             return 0;
@@ -277,6 +286,11 @@ public sealed class DriveScanner
                 foreach (var file in current.EnumerateFiles())
                 {
                     ct.ThrowIfCancellationRequested();
+                    if (SystemPathExclusions.ShouldExcludeFile(file))
+                    {
+                        continue;
+                    }
+
                     try
                     {
                         total = checked(total + file.Length);
@@ -297,7 +311,7 @@ public sealed class DriveScanner
                     ct.ThrowIfCancellationRequested();
                     try
                     {
-                        if ((childDir.Attributes & FileAttributes.ReparsePoint) != 0)
+                        if (SystemPathExclusions.ShouldExcludeDirectory(childDir))
                         {
                             continue;
                         }
@@ -317,15 +331,4 @@ public sealed class DriveScanner
         return total;
     }
 
-    private static bool IsReparsePoint(DirectoryInfo dir)
-    {
-        try
-        {
-            return (dir.Attributes & FileAttributes.ReparsePoint) != 0;
-        }
-        catch
-        {
-            return false;
-        }
-    }
 }

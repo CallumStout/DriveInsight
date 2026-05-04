@@ -200,6 +200,11 @@ public sealed class CleanupCandidateScannerService
                 ct.ThrowIfCancellationRequested();
 
                 var extension = Path.GetExtension(filePath);
+                if (SystemPathExclusions.ShouldExcludeFile(filePath))
+                {
+                    continue;
+                }
+
                 if (!InstallerAndArchiveExtensions.Contains(extension) || !IsOlderThan(filePath, TimeSpan.FromDays(30)))
                 {
                     continue;
@@ -253,6 +258,11 @@ public sealed class CleanupCandidateScannerService
             }
 
             var extension = Path.GetExtension(filePath);
+            if (SystemPathExclusions.ShouldExcludeFile(filePath))
+            {
+                continue;
+            }
+
             var size = GetFileSize(filePath);
             if (size < LargeReviewFileThreshold)
             {
@@ -304,6 +314,16 @@ public sealed class CleanupCandidateScannerService
         try
         {
             var isDirectory = Directory.Exists(path);
+            if (isDirectory && SystemPathExclusions.ShouldExcludeDirectory(path))
+            {
+                return;
+            }
+
+            if (!isDirectory && SystemPathExclusions.ShouldExcludeFile(path))
+            {
+                return;
+            }
+
             var size = isDirectory ? GetFolderSize(path, ct) : GetFileSize(path);
             if (size <= 0)
             {
@@ -404,6 +424,11 @@ public sealed class CleanupCandidateScannerService
             foreach (var file in SafeEnumerateFiles(current))
             {
                 ct.ThrowIfCancellationRequested();
+                if (SystemPathExclusions.ShouldExcludeFile(file))
+                {
+                    continue;
+                }
+
                 yield return file;
             }
 
@@ -513,13 +538,18 @@ public sealed class CleanupCandidateScannerService
 
                 foreach (var file in SafeEnumerateFiles(current.FullName))
                 {
+                    if (SystemPathExclusions.ShouldExcludeFile(file))
+                    {
+                        continue;
+                    }
+
                     total = checked(total + GetFileSize(file));
                 }
 
                 foreach (var childDirectory in SafeEnumerateDirectories(current.FullName))
                 {
                     var directory = new DirectoryInfo(childDirectory);
-                    if (!IsReparsePoint(directory))
+                    if (!ShouldSkipDirectory(childDirectory))
                     {
                         pending.Push(directory);
                     }
@@ -629,7 +659,8 @@ public sealed class CleanupCandidateScannerService
         try
         {
             var directory = new DirectoryInfo(directoryPath);
-            return SkippedDirectoryNames.Contains(directory.Name) || IsReparsePoint(directory);
+            return SkippedDirectoryNames.Contains(directory.Name) ||
+                   SystemPathExclusions.ShouldExcludeDirectory(directory);
         }
         catch
         {

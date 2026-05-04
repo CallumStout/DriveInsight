@@ -12,6 +12,8 @@ public partial class DriveFolderRowViewModel : ViewModelBase
 
     public required string SizeText { get; init; }
 
+    public required long SizeBytes { get; init; }
+
     public required double UsagePercent { get; init; }
 
     public required string UsageBrush { get; init; }
