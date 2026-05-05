@@ -65,8 +65,6 @@ jobs:
           --mainExe $env:MAIN_EXE
           --outputDir Releases
           --channel win
-          --msi
-          --instLocation PerMachine
 
       - name: Upload to GitHub Releases
         run: >
