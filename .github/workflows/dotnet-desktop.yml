@@ -30,7 +30,7 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Install Velopack CLI
         run: dotnet tool install -g vpk
@@ -69,3 +69,7 @@ jobs:
           --outputDir Releases
           --channel win
           --token "${{ secrets.GITHUB_TOKEN }}"
+          --publish
+          --releaseName "DriveInsight ${{ steps.version.outputs.version }}"
+          --tag "v${{ steps.version.outputs.version }}"
+
