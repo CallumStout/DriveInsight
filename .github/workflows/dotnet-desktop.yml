@@ -16,6 +16,8 @@ jobs:
       PROJECT_PATH: DriveInsight/DriveInsight.csproj
       MAIN_EXE: DriveInsight.exe
       PACK_ID: DriveInsight
+      PACK_TITLE: DriveInsight
+      PACK_AUTHORS: 97 Solutions
       REPO_URL: https://github.com/CallumStout/DriveInsight
 
     steps:
@@ -58,6 +60,8 @@ jobs:
           --packId $env:PACK_ID
           --packVersion ${{ steps.version.outputs.version }}
           --packDir publish
+          --packTitle "$env:PACK_TITLE"
+          --packAuthors "$env:PACK_AUTHORS"
           --mainExe $env:MAIN_EXE
           --outputDir Releases
           --channel win

@@ -6,6 +6,11 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\App.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <Company>97 Solutions</Company>
+    <Authors>97 Solutions</Authors>
+    <Product>DriveInsight</Product>
+    <Description>DriveInsight desktop storage analyzer.</Description>
+    <Copyright>Copyright © 97 Solutions</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
