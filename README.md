@@ -7,10 +7,17 @@ DriveInsight is a desktop app built with Avalonia that scans local drives, visua
 - Shows a **Dashboard** with total system capacity, per-drive usage cards, largest files, and smart insights.
 - Lists all ready drives on the machine in the **Drives** pane.
 - Shows a drive overview card with:
-  - used percentage (circular indicator)
+  - used percentage (LiveCharts gauge)
   - total capacity
   - used space
   - available space
+- Shows a **Storage Breakdown** pane with:
+  - drive tabs
+  - nested pie chart for selected-drive usage
+  - top-level folders by size
+  - other scanned files
+  - system/protected space that is used by the drive but not visible to the scanner
+  - scrollable legend with folder paths, percentages, and formatted sizes
 - Scans the selected drive and loads top-level folders by size.
 - Displays results in a hierarchical **TreeDataGrid** with columns:
   - `FOLDER NAME`
@@ -30,20 +37,22 @@ DriveInsight is a desktop app built with Avalonia that scans local drives, visua
 - .NET 10 (`net10.0`)
 - [Avalonia UI](https://avaloniaui.net/) 11.3.x
 - `Avalonia.Controls.TreeDataGrid` 11.0.2
+- `LiveChartsCore.SkiaSharpView.Avalonia` 2.0.1
 - CommunityToolkit.Mvvm
 
 ## Project Structure
 
 - `Program.cs` - App entry point and Avalonia setup.
-- `Views/` - Avalonia XAML UI, dashboard/drives panes, and cleanup confirmation/review dialogs.
+- `Views/` - Avalonia XAML UI, dashboard/drives/storage panes, and cleanup confirmation/review dialogs.
 - `ViewModels/` - MVVM logic for panes, cards, smart insights, and cleanup candidates.
 - `Services/DriveScanner.cs` - Drive, file, and folder scanning logic.
 - `Services/CleanupCandidateScannerService.cs` - Finds cleanup candidates for constrained drives.
 - `Services/CleanupRemovalService.cs` - Removes selected cleanup candidates.
 - `Services/IConfirmationDialogService.cs` and `Services/ICleanupReviewDialogService.cs` - UI dialog abstractions used by view models.
+- `Services/ConfirmationDialogService.cs` and `Services/CleanupReviewDialogService.cs` - Avalonia dialog service implementations.
+- `Services/StorageBreakdownItem.cs` - Storage breakdown item model for the top-folder pie chart.
 - `Utilities/StorageFormatter.cs` - Shared byte-size formatting helper.
 - `Models/FolderStats.cs` - Top-level folder size model.
-- `Controls/CircularProgress.cs` - Custom circular usage indicator for the drive overview.
 
 ## Requirements
 
@@ -68,6 +77,8 @@ dotnet run
 6. In the **Drives** pane, clicking **Run Scan** calls `GetTopFoldersAsync(rootPath)`.
 7. The scanner computes folder sizes recursively (access-safe traversal), orders by descending bytes, and returns top N folders (default: 20).
 8. Expanding a row lazily loads immediate children and computes their sizes for nested display.
+9. In the **Storage Breakdown** pane, selecting a drive calls `GetStorageBreakdownAsync(...)`.
+10. The storage breakdown reuses top-folder scanning, adds an **Other scanned files** bucket, and adds **System / Protected** for used drive space that cannot be attributed to accessible scanned files.
 
 ## Notes / Known Limitations
 
@@ -75,6 +86,8 @@ dotnet run
 - Some directories/files may be skipped if access is denied.
 - Reparse points/junctions are skipped to avoid recursion issues and inconsistent totals.
 - Folder sizes are recursive estimates based on accessible files.
+- Storage Breakdown is folder-based rather than semantic-category-based. It shows where space is used instead of guessing whether folders are games, apps, media, or backups.
+- **System / Protected** is calculated from drive-used bytes minus scanner-visible bytes, so it can include OS files, reserved storage, restore data, protected folders, and other inaccessible filesystem data.
 - Cleanup actions may require administrator permission for protected locations.
 - Cleanup candidates marked `Review` are intentionally unchecked by default because DriveInsight cannot know whether user/project files are safe to remove.
 
