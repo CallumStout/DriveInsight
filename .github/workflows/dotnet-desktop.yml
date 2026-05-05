@@ -15,7 +15,7 @@ jobs:
     env:
       PROJECT_PATH: DriveInsight/DriveInsight.csproj
       MAIN_EXE: DriveInsight.exe
-      PACK_ID: 97Solutions.DriveInsight
+      PACK_ID: DriveInsight
       REPO_URL: https://github.com/CallumStout/DriveInsight
 
     steps:
