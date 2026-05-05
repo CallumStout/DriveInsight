@@ -39,10 +39,31 @@
         <Style Selector="Button.HeaderRefreshButton:disabled">
             <Setter Property="Opacity" Value="0.65" />
         </Style>
+
+        <Style Selector="Button.HeaderUpdateButton">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+
+        <Style Selector="Button.HeaderUpdateButton:pointerover">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="Button.HeaderUpdateButton:pressed">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="Button.HeaderUpdateButton:disabled">
+            <Setter Property="Opacity" Value="0.65" />
+        </Style>
     </UserControl.Styles>
 
     <Border Classes="HeaderPaneRoot">
-        <Grid ColumnDefinitions="Auto,*,Auto,Auto"
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto"
               ColumnSpacing="20"
               VerticalAlignment="Center">
             <TextBlock Classes="HeaderPaneTitle"
@@ -56,7 +77,35 @@
                             Content="{Binding RightContent, ElementName=Root}"
                             VerticalAlignment="Center" />
 
-            <Button Grid.Column="3"
+            <TextBlock Grid.Column="3"
+                       Text="{Binding UpdateStatus, ElementName=Root}"
+                       IsVisible="{Binding ShowUpdateStatus, ElementName=Root}"
+                       Foreground="#607089"
+                       FontSize="12"
+                       TextTrimming="CharacterEllipsis"
+                       MaxWidth="260"
+                       VerticalAlignment="Center" />
+
+            <Button Grid.Column="4"
+                    Classes="HeaderUpdateButton"
+                    IsVisible="{Binding ShowUpdateButton, ElementName=Root}"
+                    ToolTip.Tip="{Binding UpdateToolTip, ElementName=Root}"
+                    Command="{Binding UpdateCommand, ElementName=Root}">
+                <Grid Width="20"
+                      Height="20">
+                    <Path Data="M10,2 L10,13 M5,8 L10,13 L15,8"
+                          Stroke="#31D07C"
+                          StrokeThickness="2"
+                          StrokeLineCap="Round"
+                          StrokeJoin="Round" />
+                    <Path Data="M4,17 L16,17"
+                          Stroke="#31D07C"
+                          StrokeThickness="2"
+                          StrokeLineCap="Round" />
+                </Grid>
+            </Button>
+
+            <Button Grid.Column="5"
                     Classes="HeaderRefreshButton"
                     IsVisible="{Binding ShowRefreshButton, ElementName=Root}"
                     ToolTip.Tip="{Binding RefreshToolTip, ElementName=Root}"

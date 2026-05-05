@@ -35,6 +35,14 @@ public partial class DashboardPaneViewModel : ViewModelBase
     private bool isRefreshing;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasUpdateStatus))]
+    private string updateStatus = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsUpdateAvailable))]
+    private AvailableUpdate? availableUpdate;
+
+    [ObservableProperty]
     private long totalCapacityBytes;
 
     [ObservableProperty]
@@ -46,6 +54,8 @@ public partial class DashboardPaneViewModel : ViewModelBase
     public string TotalCapacityText => StorageFormatter.Format(TotalCapacityBytes);
     public string TotalUsedText => StorageFormatter.Format(TotalUsedBytes);
     public string TotalUtilizationText => $"{TotalUtilizationPercent:0}%";
+    public bool HasUpdateStatus => !string.IsNullOrWhiteSpace(UpdateStatus);
+    public bool IsUpdateAvailable => AvailableUpdate is not null;
     private static string WindowsOldPath => Path.Combine(Path.GetPathRoot(Environment.SystemDirectory) ?? "C:\\", "Windows.old");
 
     public DashboardPaneViewModel(
@@ -59,6 +69,36 @@ public partial class DashboardPaneViewModel : ViewModelBase
         _cleanupReviewDialog = cleanupReviewDialog ?? nullDialog;
         RefreshDashboardCommand = RefreshCommand.Create(this);
         _ = RefreshDashboardCommand.ExecuteAsync(null);
+        _ = LoadAvailableUpdateAsync();
+    }
+
+    private async Task LoadAvailableUpdateAsync()
+    {
+        AvailableUpdate = await UpdateService.CheckForAvailableUpdateAsync();
+    }
+
+    [RelayCommand]
+    private async Task UpdateClientAsync()
+    {
+        if (AvailableUpdate is null)
+        {
+            return;
+        }
+
+        var result = await UpdateService.DownloadUpdateAndRestartAsync(
+            AvailableUpdate,
+            () => _confirmationDialog.ConfirmAsync(
+                "Update available",
+                "A new DriveInsight update is ready to install. DriveInsight will restart to finish the update.",
+                "Update and restart",
+                "Not now"));
+
+        UpdateStatus = result switch
+        {
+            UpdateCheckResult.UpdateStarted => "Restarting to update...",
+            UpdateCheckResult.Cancelled => string.Empty,
+            _ => "Update check failed. Try again later."
+        };
     }
 
     partial void OnIsRefreshingChanged(bool value)

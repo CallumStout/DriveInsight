@@ -30,7 +30,11 @@
                              Title="Dashboard"
                              ShowRefreshButton="True"
                              RefreshToolTip="Refresh"
-                             RefreshCommand="{Binding RefreshDashboardCommand}" />
+                             RefreshCommand="{Binding RefreshDashboardCommand}"
+                             ShowUpdateButton="{Binding IsUpdateAvailable}"
+                             UpdateCommand="{Binding UpdateClientCommand}"
+                             UpdateStatus="{Binding UpdateStatus}"
+                             ShowUpdateStatus="{Binding HasUpdateStatus}" />
 
         <ScrollViewer Grid.Row="1"
                       Margin="16,14,16,0"
