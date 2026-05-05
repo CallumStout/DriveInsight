@@ -2,9 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:controls="using:DriveInsight.Controls"
+             xmlns:liveCharts="using:LiveChartsCore"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:paint="using:LiveChartsCore.SkiaSharpView.Painting"
              xmlns:paneControls="using:DriveInsight.Views.Controls"
              xmlns:viewModels="using:DriveInsight.ViewModels"
+             xmlns:skia="clr-namespace:SkiaSharp;assembly=SkiaSharp"
              mc:Ignorable="d"
              d:DesignWidth="1100"
              d:DesignHeight="760"
@@ -137,16 +140,30 @@
                     Padding="18">
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="24">
-                    <Grid Width="170"
-                          Height="170">
-                        <controls:CircularProgress Width="170"
-                                                   Height="170"
-                                                   Value="{Binding UsedPercentage}"
-                                                   Maximum="100"
-                                                   StrokeThickness="15"
-                                                   StartAngle="-90"
-                                                   ProgressBrush="#1E63FF"
-                                                   TrackBrush="#DEE5F0" />
+                    <Grid Width="184"
+                          Height="184">
+                        <lvc:PieChart Width="184"
+                                      Height="184"
+                                      InitialRotation="-90"
+                                      MinValue="0"
+                                      MaxValue="100"
+                                      LegendPosition="Hidden">
+                            <lvc:PieChart.Series>
+                                <lvc:XamlGaugeSeries GaugeValue="{Binding UsedPercentage}"
+                                                     DataLabelsSize="0"
+                                                     MaxRadialColumnWidth="16">
+                                    <lvc:XamlGaugeSeries.Fill>
+                                        <paint:SolidColorPaint>
+                                            <paint:SolidColorPaint.Color>
+                                                <skia:SKColor>#1E63FF</skia:SKColor>
+                                            </paint:SolidColorPaint.Color>
+                                        </paint:SolidColorPaint>
+                                    </lvc:XamlGaugeSeries.Fill>
+                                </lvc:XamlGaugeSeries>
+                                <lvc:XamlGaugeBackgroundSeries MaxRadialColumnWidth="15" />
+                            </lvc:PieChart.Series>
+                        </lvc:PieChart>
+
                         <StackPanel HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Spacing="2">

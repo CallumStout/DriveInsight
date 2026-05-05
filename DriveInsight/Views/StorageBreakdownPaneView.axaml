@@ -1,0 +1,226 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:paneControls="using:DriveInsight.Views.Controls"
+             xmlns:viewModels="using:DriveInsight.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="1100"
+             d:DesignHeight="760"
+             x:Class="DriveInsight.Views.StorageBreakdownPaneView">
+
+    <UserControl.Styles>
+        <Style Selector="ListBox#StorageDriveTabs">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <Style Selector="ListBox#StorageDriveTabs > ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,16,0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#6E7C94" />
+        </Style>
+        <Style Selector="ListBox#StorageDriveTabs > ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Padding" Value="12,4,12,4" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0,0,0,2" />
+        </Style>
+        <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:pointerover">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:selected">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#1E63FF" />
+        </Style>
+        <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:selected TextBlock">
+            <Setter Property="Foreground" Value="#1E63FF" />
+        </Style>
+        <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="BorderBrush" Value="#1E63FF" />
+            <Setter Property="BorderThickness" Value="0,0,0,2" />
+        </Style>
+
+        <Style Selector="Border.StoragePanel">
+            <Setter Property="Background" Value="#F7F9FD" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="18" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*"
+          RowSpacing="0">
+        <paneControls:HeaderPane Grid.Row="0"
+                                 Title="Storage Breakdown"
+                                 ShowRefreshButton="True"
+                                 RefreshToolTip="Rescan storage"
+                                 RefreshCommand="{Binding RefreshStorageBreakdownCommand}">
+            <paneControls:HeaderPane.CenterContent>
+                <ListBox x:Name="StorageDriveTabs"
+                         ItemsSource="{Binding Drives}"
+                         SelectedItem="{Binding SelectedDrive}"
+                         Padding="0,4,0,0">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name, StringFormat=Drive {0}}"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,6" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </paneControls:HeaderPane.CenterContent>
+            <paneControls:HeaderPane.RightContent>
+                <StackPanel Orientation="Horizontal"
+                            Spacing="12"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}"
+                               Foreground="#69758A"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding TotalScannedText}"
+                               IsVisible="{Binding HasBreakdown}"
+                               Foreground="#1A2436"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </paneControls:HeaderPane.RightContent>
+        </paneControls:HeaderPane>
+
+        <Grid Grid.Row="1"
+              Margin="16,14,16,0"
+              ColumnDefinitions="2.4*,0.95*"
+              ColumnSpacing="18">
+            <Border Grid.Column="0"
+                    Classes="StoragePanel">
+                <Grid>
+                    <lvc:PieChart Width="560"
+                                  Height="560"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Series="{Binding Series}"
+                                  InitialRotation="-90"
+                                  MaxAngle="360"
+                                  MinValue="0" />
+
+                    <Border Width="180"
+                            Height="180"
+                            CornerRadius="90"
+                            Background="#FCFDFE"
+                            BorderBrush="#E4EAF4"
+                            BorderThickness="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="4">
+                            <TextBlock Text="{Binding TotalScannedText}"
+                                       FontSize="28"
+                                       FontWeight="Bold"
+                                       Foreground="#182235"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="SCANNED"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#7A869B"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="Scanning storage..."
+                               IsVisible="{Binding IsScanning}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Bottom"
+                               Margin="0,0,0,12"
+                               Foreground="#607089"
+                               FontSize="13"
+                               FontWeight="SemiBold" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1"
+                    Classes="StoragePanel">
+                <Grid RowDefinitions="Auto,*"
+                      RowSpacing="16">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Breakdown"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="#192232" />
+                        <TextBlock Text="Grouped by the largest top-level folders found on the selected drive."
+                                   FontSize="12"
+                                   Foreground="#6C7A90"
+                                   TextWrapping="Wrap"
+                                   LineHeight="18" />
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding BreakdownItems}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Spacing="10" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="viewModels:StorageBreakdownItemViewModel">
+                                    <Border Background="#FFFFFF"
+                                            CornerRadius="10"
+                                            Padding="12">
+                                        <Grid ColumnDefinitions="Auto,*,Auto"
+                                              ColumnSpacing="10">
+                                            <Border Width="12"
+                                                    Height="12"
+                                                    CornerRadius="6"
+                                                    Background="{Binding Color}"
+                                                    VerticalAlignment="Center" />
+
+                                            <StackPanel Grid.Column="1"
+                                                        Spacing="2">
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontSize="14"
+                                                           FontWeight="Bold"
+                                                           Foreground="#1A2436"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding FullPath}"
+                                                           IsVisible="{Binding HasPath}"
+                                                           FontSize="10"
+                                                           Foreground="#8996AA"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding PercentText}"
+                                                           FontSize="11"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="#7A869B" />
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding SizeText}"
+                                                       FontSize="14"
+                                                       FontWeight="Bold"
+                                                       Foreground="#1A2436"
+                                                       VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

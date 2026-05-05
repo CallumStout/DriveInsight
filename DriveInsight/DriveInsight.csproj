@@ -21,6 +21,7 @@
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.1" />
     <PackageReference Include="Velopack" Version="0.0.1298" />
   </ItemGroup>
 
@@ -32,6 +33,9 @@
   <ItemGroup>
     <Compile Update="Views\DashBoardPaneView.axaml.cs">
       <DependentUpon>DashBoardPaneView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\StorageBreakdownPaneView.axaml.cs">
+      <DependentUpon>StorageBreakdownPaneView.axaml</DependentUpon>
     </Compile>
     <Compile Update="Views\DrivesPaneView.axaml.cs">
       <DependentUpon>DrivesPaneView.axaml</DependentUpon>

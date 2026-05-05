@@ -250,6 +250,56 @@ public sealed class DriveScanner
         }, ct);
     }
 
+    public async Task<List<StorageBreakdownItem>> GetStorageBreakdownAsync(DriveInfo drive, int topFolders = 8, CancellationToken ct = default)
+    {
+        if (!drive.IsReady)
+        {
+            return [];
+        }
+
+        var rootPath = drive.RootDirectory.FullName;
+        var top = await GetTopFoldersAsync(rootPath, topFolders, ct);
+        var topBytes = top.Sum(folder => folder.Bytes);
+        var rootBytes = await GetFolderSizeAsync(rootPath, ct);
+        var usedBytes = Math.Max(0, drive.TotalSize - drive.AvailableFreeSpace);
+
+        var result = top
+            .Where(folder => folder.Bytes > 0)
+            .Select(folder => new StorageBreakdownItem
+            {
+                Name = folder.Name,
+                FullPath = folder.FullPath,
+                Bytes = folder.Bytes
+            })
+            .ToList();
+
+        var otherScannedBytes = Math.Max(0, rootBytes - topBytes);
+        if (otherScannedBytes > 0)
+        {
+            result.Add(new StorageBreakdownItem
+            {
+                Name = "Other scanned files",
+                FullPath = rootPath,
+                Bytes = otherScannedBytes
+            });
+        }
+
+        var protectedBytes = Math.Max(0, usedBytes - rootBytes);
+        if (protectedBytes > 0)
+        {
+            result.Add(new StorageBreakdownItem
+            {
+                Name = "System / Protected",
+                FullPath = rootPath,
+                Bytes = protectedBytes
+            });
+        }
+
+        return result
+            .OrderByDescending(item => item.Bytes)
+            .ToList();
+    }
+
     private long GetFolderSize(string folderPath, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
@@ -330,5 +380,4 @@ public sealed class DriveScanner
 
         return total;
     }
-
 }

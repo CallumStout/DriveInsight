@@ -21,6 +21,7 @@ public partial class MainWindowViewModel : ViewModelBase
         confirmationDialog ??= nullDialog;
         cleanupReviewDialog ??= nullDialog;
         var drivesPaneContent = new DrivesPaneViewModel();
+        var storagePaneContent = new StorageBreakdownPaneViewModel();
 
         var dashboardPane = new PaneItemViewModel
         {
@@ -47,9 +48,18 @@ public partial class MainWindowViewModel : ViewModelBase
             Content = drivesPaneContent
         };
 
+        var storageBreakdownPane = new PaneItemViewModel
+        {
+            Id = "breakdown",
+            Title = "Storage Breakdown",
+            IconKey = "Storage",
+            IconPathData = "M12,2 A10,10 0 1 0 22,12 H12 Z M14,2.2 V10 H21.8 A10,10 0 0 0 14,2.2 Z",
+            Content = storagePaneContent
+        };
+
         drivesPaneContent.SetDashboardRefresh(() => ((DashboardPaneViewModel)dashboardPane.Content).RefreshDashboardCommand.ExecuteAsync(null));
 
-        Panes = [dashboardPane, drivesPane];
+        Panes = [dashboardPane, drivesPane, storageBreakdownPane];
         SelectedPane = dashboardPane;
     }
 

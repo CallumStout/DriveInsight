@@ -34,7 +34,7 @@ public partial class HeaderPane : UserControl
         AvaloniaProperty.Register<HeaderPane, string>(nameof(RefreshToolTip), "Refresh");
 
     public static readonly StyledProperty<string> UpdateToolTipProperty =
-        AvaloniaProperty.Register<HeaderPane, string>(nameof(UpdateToolTip), "Check for updates");
+        AvaloniaProperty.Register<HeaderPane, string>(nameof(UpdateToolTip), "Update to latest release");
 
     public static readonly StyledProperty<string> UpdateStatusProperty =
         AvaloniaProperty.Register<HeaderPane, string>(nameof(UpdateStatus), string.Empty);
