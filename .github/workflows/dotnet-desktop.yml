@@ -1,0 +1,71 @@
+name: Release Avalonia App
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    env:
+      PROJECT_PATH: DriveInsight/DriveInsight.csproj
+      MAIN_EXE: DriveInsight.exe
+      PACK_ID: 97Solutions.DriveInsight
+      REPO_URL: https://github.com/CallumStout/DriveInsight
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}".TrimStart("v")
+          echo "version=$v" >> $env:GITHUB_OUTPUT
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Velopack CLI
+        run: dotnet tool install -g vpk
+
+      - name: Publish Avalonia app
+        run: >
+          dotnet publish $env:PROJECT_PATH
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:Version=${{ steps.version.outputs.version }}
+          -o publish
+
+      - name: Download previous Velopack release
+        run: >
+          vpk download github
+          --repoUrl $env:REPO_URL
+          --outputDir Releases
+          --channel win
+          --token "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Pack with Velopack
+        run: >
+          vpk pack
+          --packId $env:PACK_ID
+          --packVersion ${{ steps.version.outputs.version }}
+          --packDir publish
+          --mainExe $env:MAIN_EXE
+          --outputDir Releases
+          --channel win
+
+      - name: Upload to GitHub Releases
+        run: >
+          vpk upload github
+          --repoUrl $env:REPO_URL
+          --outputDir Releases
+          --channel win
+          --token "${{ secrets.GITHUB_TOKEN }}"
