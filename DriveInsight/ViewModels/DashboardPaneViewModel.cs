@@ -91,7 +91,8 @@ public partial class DashboardPaneViewModel : ViewModelBase
                 "Update available",
                 "A new DriveInsight update is ready to install. DriveInsight will restart to finish the update.",
                 "Update and restart",
-                "Not now"));
+                "Not now",
+                ConfirmationKind.Info));
 
         UpdateStatus = result switch
         {

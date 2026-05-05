@@ -5,7 +5,12 @@ namespace DriveInsight.Services;
 
 public sealed class NullDialogService : IConfirmationDialogService, ICleanupReviewDialogService
 {
-    public Task<bool> ConfirmAsync(string title, string message, string confirmText, string cancelText)
+    public Task<bool> ConfirmAsync(
+        string title,
+        string message,
+        string confirmText,
+        string cancelText,
+        ConfirmationKind kind = ConfirmationKind.Destructive)
     {
         return Task.FromResult(false);
     }
