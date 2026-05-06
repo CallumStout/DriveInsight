@@ -109,15 +109,19 @@
                 <Grid>
                     <lvc:PieChart Width="560"
                                   Height="560"
+                                  ZIndex="2"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   Series="{Binding Series}"
                                   InitialRotation="-90"
+                                  TooltipPosition="Top"
                                   MaxAngle="360"
                                   MinValue="0" />
 
                     <Border Width="180"
                             Height="180"
+                            ZIndex="1"
+                            IsHitTestVisible="False"
                             CornerRadius="90"
                             Background="#FCFDFE"
                             BorderBrush="#E4EAF4"

@@ -142,20 +142,6 @@ public partial class StorageBreakdownPaneViewModel : ViewModelBase
         BreakdownItems.Clear();
         Series.Clear();
 
-        if (TotalScannedBytes > 0)
-        {
-            Series.Add(new PieSeries<double?>
-            {
-                Name = "Used Space",
-                Values = [TotalScannedBytes, null],
-                ToolTipLabelFormatter = _ => StorageFormatter.Format(TotalScannedBytes, 1),
-                Fill = new SolidColorPaint(SKColor.Parse("#DCE6F7")),
-                Stroke = new SolidColorPaint(SKColor.Parse("#FCFDFE")) { StrokeThickness = 3 },
-                HoverPushout = 0,
-                IsVisibleAtLegend = false
-            });
-        }
-
         var index = 0;
         foreach (var category in breakdown.Where(category => category.Bytes > 0))
         {
@@ -172,11 +158,13 @@ public partial class StorageBreakdownPaneViewModel : ViewModelBase
             Series.Add(new PieSeries<double?>
             {
                 Name = category.Name,
-                Values = [null, category.Bytes],
+                Values = [category.Bytes],
                 ToolTipLabelFormatter = _ => StorageFormatter.Format(category.Bytes, 1),
                 Fill = new SolidColorPaint(SKColor.Parse(color)),
                 Stroke = new SolidColorPaint(SKColor.Parse("#FCFDFE")) { StrokeThickness = 3 },
                 HoverPushout = 0,
+                InnerRadius = 96,
+                IsHoverable = IsLargeEnoughForTooltip(category.Bytes),
                 IsVisibleAtLegend = false,
                 DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Middle
             });
@@ -194,5 +182,11 @@ public partial class StorageBreakdownPaneViewModel : ViewModelBase
         BreakdownItems.Clear();
         Series.Clear();
         Status = status;
+    }
+
+    private bool IsLargeEnoughForTooltip(long bytes)
+    {
+        const long tenMegabytes = 10L * 1024L * 1024L;
+        return bytes >= tenMegabytes && bytes >= TotalScannedBytes * 0.001;
     }
 }
