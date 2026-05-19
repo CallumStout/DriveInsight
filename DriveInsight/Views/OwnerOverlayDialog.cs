@@ -8,6 +8,7 @@ internal static class OwnerOverlayDialog
 {
     public static async Task<TResult?> ShowAsync<TResult>(Window owner, Window dialog)
     {
+        dialog.RequestedThemeVariant = Application.Current?.RequestedThemeVariant;
         SyncToOwner(owner, dialog);
 
         owner.PositionChanged += MoveWithOwner;

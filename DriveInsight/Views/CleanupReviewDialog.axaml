@@ -9,6 +9,40 @@
         TransparencyLevelHint="Transparent"
         Background="Transparent">
 
+    <Window.Styles>
+        <Style Selector="Button.DialogSecondaryButton">
+            <Setter Property="Background" Value="{DynamicResource AppControlBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+
+        <Style Selector="Button.DialogSecondaryButton:pointerover">
+            <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
+        </Style>
+
+        <Style Selector="Button.DialogSecondaryButton:pressed">
+            <Setter Property="Background" Value="{DynamicResource AppControlPressedBrush}" />
+        </Style>
+
+        <Style Selector="Button.DialogSecondaryButton /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AppControlBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
+        </Style>
+
+        <Style Selector="Button.DialogSecondaryButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
+        </Style>
+
+        <Style Selector="Button.DialogSecondaryButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AppControlPressedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
+        </Style>
+    </Window.Styles>
+
     <Grid Background="{DynamicResource AppDialogOverlayBrush}">
         <Border Width="760"
                 MaxWidth="760"
@@ -123,6 +157,7 @@
                             HorizontalAlignment="Right"
                             Spacing="10">
                     <Button Name="CancelButton"
+                            Classes="DialogSecondaryButton"
                             Content="Cancel"
                             MinWidth="96"
                             Padding="14,7"
