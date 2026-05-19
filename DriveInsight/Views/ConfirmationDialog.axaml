@@ -10,12 +10,12 @@
         TransparencyLevelHint="Transparent"
         Background="Transparent">
 
-    <Grid Background="#660F172A">
+    <Grid Background="{DynamicResource AppDialogOverlayBrush}">
         <Border Width="460"
                 MaxWidth="460"
                 Padding="22"
-                Background="#F8FAFC"
-                BorderBrush="#D8E0EC"
+                Background="{DynamicResource AppDialogBackgroundBrush}"
+                BorderBrush="{DynamicResource AppDialogBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="10"
                 BoxShadow="0 18 44 0 #55000000"
@@ -25,24 +25,24 @@
                 <TextBlock Name="TitleText"
                            FontSize="20"
                            FontWeight="Bold"
-                           Foreground="#182235"
+                           Foreground="{DynamicResource AppPrimaryTextBrush}"
                            TextWrapping="Wrap" />
 
                 <TextBlock Name="MessageText"
                            FontSize="13"
-                           Foreground="#5E6B80"
+                           Foreground="{DynamicResource AppSecondaryTextBrush}"
                            TextWrapping="Wrap"
                            LineHeight="20" />
 
                 <Border Name="WarningBox"
-                        Background="#FFF1DA"
+                        Background="{DynamicResource AppWarningBackgroundBrush}"
                         BorderBrush="#D1791A"
                         BorderThickness="3,0,0,0"
                         CornerRadius="8"
                         Padding="12">
                     <TextBlock Text="This action removes files from disk and cannot be undone from DriveInsight."
                                FontSize="12"
-                               Foreground="#6B430C"
+                               Foreground="{DynamicResource AppWarningTextBrush}"
                                TextWrapping="Wrap" />
                 </Border>
 

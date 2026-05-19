@@ -9,14 +9,14 @@
         TransparencyLevelHint="Transparent"
         Background="Transparent">
 
-    <Grid Background="#720F172A">
+    <Grid Background="{DynamicResource AppDialogOverlayBrush}">
         <Border Width="760"
                 MaxWidth="760"
                 Height="640"
                 MaxHeight="640"
                 Padding="22"
-                Background="#F8FAFC"
-                BorderBrush="#D8E0EC"
+                Background="{DynamicResource AppDialogBackgroundBrush}"
+                BorderBrush="{DynamicResource AppDialogBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="10"
                 BoxShadow="0 18 44 0 #55000000"
@@ -28,18 +28,18 @@
                     <TextBlock Name="TitleText"
                                FontSize="22"
                                FontWeight="Bold"
-                               Foreground="#182235"
+                               Foreground="{DynamicResource AppPrimaryTextBrush}"
                                TextWrapping="Wrap" />
                     <TextBlock Text="Review the suggested items before removing anything. Safer cleanup items are selected by default; personal files are left unchecked."
                                FontSize="13"
-                               Foreground="#5E6B80"
+                               Foreground="{DynamicResource AppSecondaryTextBrush}"
                                TextWrapping="Wrap"
                                LineHeight="20" />
                 </StackPanel>
 
                 <Border Grid.Row="1"
-                        Background="#EDF3FC"
-                        BorderBrush="#C8D6EA"
+                        Background="{DynamicResource AppSummaryBackgroundBrush}"
+                        BorderBrush="{DynamicResource AppSummaryBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="12">
@@ -48,18 +48,18 @@
                         <TextBlock Name="CountText"
                                    FontSize="13"
                                    FontWeight="SemiBold"
-                                   Foreground="#2C3A4F" />
+                                   Foreground="{DynamicResource AppPrimaryTextBrush}" />
                         <TextBlock Grid.Column="1"
                                    Name="SelectedSizeText"
                                    FontSize="13"
                                    FontWeight="Bold"
-                                   Foreground="#1E63FF" />
+                                   Foreground="{DynamicResource AppAccentBrush}" />
                     </Grid>
                 </Border>
 
                 <Border Grid.Row="2"
-                        Background="#FFFFFF"
-                        BorderBrush="#E0E6F0"
+                        Background="{DynamicResource AppCardBackgroundBrush}"
+                        BorderBrush="{DynamicResource AppDialogBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -67,7 +67,7 @@
                         <ItemsControl ItemsSource="{Binding Candidates}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="viewModels:CleanupCandidateViewModel">
-                                    <Border BorderBrush="#EEF2F7"
+                                    <Border BorderBrush="{DynamicResource AppSoftBorderBrush}"
                                             BorderThickness="0,0,0,1"
                                             Padding="12">
                                         <Grid ColumnDefinitions="Auto,*,Auto"
@@ -83,24 +83,24 @@
                                                     <TextBlock Text="{Binding Name}"
                                                                FontSize="13"
                                                                FontWeight="Bold"
-                                                               Foreground="#182235"
+                                                               Foreground="{DynamicResource AppPrimaryTextBrush}"
                                                                TextTrimming="CharacterEllipsis" />
                                                     <Border Grid.Column="1"
-                                                            Background="#F1F5FB"
+                                                            Background="{DynamicResource AppBadgeBackgroundBrush}"
                                                             CornerRadius="10"
                                                             Padding="8,2">
                                                         <TextBlock Text="{Binding Risk}"
                                                                    FontSize="10"
                                                                    FontWeight="Bold"
-                                                                   Foreground="#526176" />
+                                                                   Foreground="{DynamicResource AppSecondaryTextBrush}" />
                                                     </Border>
                                                 </Grid>
                                                 <TextBlock Text="{Binding Reason}"
                                                            FontSize="12"
-                                                           Foreground="#617086" />
+                                                           Foreground="{DynamicResource AppSecondaryTextBrush}" />
                                                 <TextBlock Text="{Binding FullPath}"
                                                            FontSize="11"
-                                                           Foreground="#8996AA"
+                                                           Foreground="{DynamicResource AppMutedTextBrush}"
                                                            TextTrimming="CharacterEllipsis" />
                                             </StackPanel>
 
@@ -108,7 +108,7 @@
                                                        Text="{Binding SizeText}"
                                                        FontSize="13"
                                                        FontWeight="Bold"
-                                                       Foreground="#182235"
+                                                       Foreground="{DynamicResource AppPrimaryTextBrush}"
                                                        VerticalAlignment="Top" />
                                         </Grid>
                                     </Border>

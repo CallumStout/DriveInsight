@@ -29,6 +29,14 @@
                     <SolidColorBrush x:Key="AppProgressTrackBrush" Color="#DCE4F2" />
                     <SolidColorBrush x:Key="AppChartCenterBrush" Color="#FCFDFE" />
                     <SolidColorBrush x:Key="AppChartCenterBorderBrush" Color="#E4EAF4" />
+                    <SolidColorBrush x:Key="AppDialogOverlayBrush" Color="#660F172A" />
+                    <SolidColorBrush x:Key="AppDialogBackgroundBrush" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="AppDialogBorderBrush" Color="#D8E0EC" />
+                    <SolidColorBrush x:Key="AppSummaryBackgroundBrush" Color="#EDF3FC" />
+                    <SolidColorBrush x:Key="AppSummaryBorderBrush" Color="#C8D6EA" />
+                    <SolidColorBrush x:Key="AppBadgeBackgroundBrush" Color="#F1F5FB" />
+                    <SolidColorBrush x:Key="AppWarningBackgroundBrush" Color="#FFF1DA" />
+                    <SolidColorBrush x:Key="AppWarningTextBrush" Color="#6B430C" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="AppAccentBrush" Color="#1E63FF" />
@@ -53,6 +61,14 @@
                     <SolidColorBrush x:Key="AppProgressTrackBrush" Color="#2A3748" />
                     <SolidColorBrush x:Key="AppChartCenterBrush" Color="#151B25" />
                     <SolidColorBrush x:Key="AppChartCenterBorderBrush" Color="#2A3748" />
+                    <SolidColorBrush x:Key="AppDialogOverlayBrush" Color="#99101824" />
+                    <SolidColorBrush x:Key="AppDialogBackgroundBrush" Color="#151B25" />
+                    <SolidColorBrush x:Key="AppDialogBorderBrush" Color="#334155" />
+                    <SolidColorBrush x:Key="AppSummaryBackgroundBrush" Color="#1C2736" />
+                    <SolidColorBrush x:Key="AppSummaryBorderBrush" Color="#334155" />
+                    <SolidColorBrush x:Key="AppBadgeBackgroundBrush" Color="#263343" />
+                    <SolidColorBrush x:Key="AppWarningBackgroundBrush" Color="#3A2A18" />
+                    <SolidColorBrush x:Key="AppWarningTextBrush" Color="#F1C27D" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
