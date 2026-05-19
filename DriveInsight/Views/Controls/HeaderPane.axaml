@@ -19,7 +19,7 @@
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
-        <Style Selector="Button.HeaderRefreshButton">
+        <Style Selector="Button.HeaderIconButton">
             <Setter Property="Width" Value="34" />
             <Setter Property="Height" Value="34" />
             <Setter Property="Padding" Value="0" />
@@ -28,15 +28,15 @@
             <Setter Property="CornerRadius" Value="8" />
         </Style>
 
-        <Style Selector="Button.HeaderRefreshButton:pointerover">
+        <Style Selector="Button.HeaderIconButton:pointerover">
             <Setter Property="Background" Value="#E3EAF3" />
         </Style>
 
-        <Style Selector="Button.HeaderRefreshButton:pressed">
+        <Style Selector="Button.HeaderIconButton:pressed">
             <Setter Property="Background" Value="#D7E0EC" />
         </Style>
 
-        <Style Selector="Button.HeaderRefreshButton:disabled">
+        <Style Selector="Button.HeaderIconButton:disabled">
             <Setter Property="Opacity" Value="0.65" />
         </Style>
 
@@ -63,7 +63,7 @@
     </UserControl.Styles>
 
     <Border Classes="HeaderPaneRoot">
-        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto"
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto"
               ColumnSpacing="20"
               VerticalAlignment="Center">
             <TextBlock Classes="HeaderPaneTitle"
@@ -106,7 +106,26 @@
             </Button>
 
             <Button Grid.Column="5"
-                    Classes="HeaderRefreshButton"
+                    Classes="HeaderIconButton"
+                    IsVisible="{Binding ShowExportButton, ElementName=Root}"
+                    ToolTip.Tip="{Binding ExportToolTip, ElementName=Root}"
+                    Command="{Binding ExportCommand, ElementName=Root}">
+                <Grid Width="18"
+                      Height="18">
+                    <Path Data="M4,3 H14 L17,6 V15 H4 Z M14,3 V6 H17"
+                          Stroke="#7A869B"
+                          StrokeThickness="1.7"
+                          StrokeLineCap="Round"
+                          StrokeJoin="Round" />
+                    <Path Data="M7,9 H14 M7,12 H14"
+                          Stroke="#7A869B"
+                          StrokeThickness="1.7"
+                          StrokeLineCap="Round" />
+                </Grid>
+            </Button>
+
+            <Button Grid.Column="6"
+                    Classes="HeaderIconButton"
                     IsVisible="{Binding ShowRefreshButton, ElementName=Root}"
                     ToolTip.Tip="{Binding RefreshToolTip, ElementName=Root}"
                     Command="{Binding RefreshCommand, ElementName=Root}">

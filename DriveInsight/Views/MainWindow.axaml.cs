@@ -11,6 +11,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = new MainWindowViewModel(
             new ConfirmationDialogService(this),
-            new CleanupReviewDialogService(this));
+            new CleanupReviewDialogService(this),
+            new ExportService(this));
     }
 }

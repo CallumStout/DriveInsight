@@ -15,13 +15,16 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel(
         IConfirmationDialogService? confirmationDialog = null,
-        ICleanupReviewDialogService? cleanupReviewDialog = null)
+        ICleanupReviewDialogService? cleanupReviewDialog = null,
+        IExportService? exportService = null)
     {
         var nullDialog = new NullDialogService();
         confirmationDialog ??= nullDialog;
         cleanupReviewDialog ??= nullDialog;
+        exportService ??= new NullExportService();
         var drivesPaneContent = new DrivesPaneViewModel();
         var storagePaneContent = new StorageBreakdownPaneViewModel();
+        DashboardPaneViewModel? dashboardPaneContent = null;
 
         var dashboardPane = new PaneItemViewModel
         {
@@ -29,7 +32,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Title = "Dashboard",
             IconKey = "Home",
             IconPathData = "M2,2 H10 V10 H2 Z M14,2 H22 V10 H14 Z M2,14 H10 V22 H2 Z M14,14 H22 V22 H14 Z",
-            Content = new DashboardPaneViewModel(
+            Content = dashboardPaneContent = new DashboardPaneViewModel(
                 () =>
                 {
                     drivesPaneContent.RefreshAvailableDrives();
@@ -59,6 +62,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
         drivesPaneContent.SetDashboardRefresh(() => ((DashboardPaneViewModel)dashboardPane.Content).RefreshDashboardCommand.ExecuteAsync(null));
 
+        var exportCsvCommand = new AsyncRelayCommand(
+            () => exportService.ExportDriveInsightCsvAsync(dashboardPaneContent, drivesPaneContent, storagePaneContent));
+
+        dashboardPaneContent.ExportCsvCommand = exportCsvCommand;
+        drivesPaneContent.ExportCsvCommand = exportCsvCommand;
+        storagePaneContent.ExportCsvCommand = exportCsvCommand;
+
         Panes = [dashboardPane, drivesPane, storageBreakdownPane];
         SelectedPane = dashboardPane;
     }
@@ -81,4 +91,5 @@ public partial class MainWindowViewModel : ViewModelBase
             pane.IsActive = ReferenceEquals(pane, value);
         }
     }
+
 }

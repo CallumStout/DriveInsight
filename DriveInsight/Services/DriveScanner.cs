@@ -13,6 +13,7 @@ public sealed class DriveScanner
 {
     private readonly ConcurrentDictionary<string, long> _folderSizeCache = new(StringComparer.OrdinalIgnoreCase);
     private static readonly int SizeScanParallelism = Math.Clamp(Environment.ProcessorCount / 2, 2, 6);
+    private static readonly int DriveScanParallelism = Math.Clamp(Environment.ProcessorCount / 4, 1, 3);
 
     public IEnumerable<DriveInfo> GetReadyDrives() => DriveInfo.GetDrives().Where(d => d.IsReady);
 
@@ -20,49 +21,8 @@ public sealed class DriveScanner
 
     public async Task<List<FolderStat>> GetTopFoldersAsync(string rootPath, int top = 20, CancellationToken ct = default)
     {
-        return await Task.Run(() =>
-        {
-            var root = new DirectoryInfo(rootPath);
-            var topDirectories = new List<DirectoryInfo>();
-
-            try
-            {
-                foreach (var dir in root.EnumerateDirectories())
-                {
-                    ct.ThrowIfCancellationRequested();
-                    if (SystemPathExclusions.ShouldExcludeDirectory(dir))
-                    {
-                        continue;
-                    }
-
-                    topDirectories.Add(dir);
-                }
-            }
-            catch
-            {
-            }
-
-            var result = new ConcurrentBag<FolderStat>();
-            Parallel.ForEach(topDirectories, new ParallelOptions
-            {
-                CancellationToken = ct,
-                MaxDegreeOfParallelism = SizeScanParallelism
-            }, dir =>
-            {
-                var size = GetFolderSize(dir.FullName, ct);
-                result.Add(new FolderStat
-                {
-                    Name = dir.Name,
-                    FullPath = dir.FullName,
-                    Bytes = size
-                });
-            });
-
-            return result
-                .OrderByDescending(x => x.Bytes)
-                .Take(top)
-                .ToList();
-        }, ct);
+        var result = await ScanTopFoldersAsync(rootPath, top, ct);
+        return result.TopFolders;
     }
 
     public async Task<List<FileSystemEntry>> GetImmediateChildrenAsync(string folderPath, CancellationToken ct = default)
@@ -74,30 +34,27 @@ public sealed class DriveScanner
 
             try
             {
-                foreach (var childDir in dir.EnumerateDirectories())
+                foreach (var child in dir.EnumerateFileSystemInfos())
                 {
                     ct.ThrowIfCancellationRequested();
-                    if (SystemPathExclusions.ShouldExcludeDirectory(childDir))
+                    if (child is DirectoryInfo childDir)
                     {
+                        if (SystemPathExclusions.ShouldExcludeDirectory(childDir))
+                        {
+                            continue;
+                        }
+
+                        result.Add(new FileSystemEntry
+                        {
+                            Name = childDir.Name,
+                            FullPath = childDir.FullName,
+                            IsFolder = true
+                        });
+
                         continue;
                     }
 
-                    result.Add(new FileSystemEntry
-                    {
-                        Name = childDir.Name,
-                        FullPath = childDir.FullName,
-                        IsFolder = true
-                    });
-                }
-            }
-            catch { }
-
-            try
-            {
-                foreach (var childFile in dir.EnumerateFiles())
-                {
-                    ct.ThrowIfCancellationRequested();
-                    if (SystemPathExclusions.ShouldExcludeFile(childFile))
+                    if (child is not FileInfo childFile || SystemPathExclusions.ShouldExcludeFile(childFile))
                     {
                         continue;
                     }
@@ -157,97 +114,119 @@ public sealed class DriveScanner
         return await Task.Run(() =>
         {
             var maxItems = Math.Max(1, top);
-            var topFiles = new PriorityQueue<FileSystemEntry, long>();
-
-            foreach (var drive in drives)
+            var candidates = new ConcurrentBag<FileSystemEntry>();
+            var readyDrives = drives.Where(drive =>
             {
-                ct.ThrowIfCancellationRequested();
-                if (!drive.IsReady)
+                try
                 {
-                    continue;
+                    return drive.IsReady;
                 }
-
-                var rootPath = drive.RootDirectory.FullName;
-                var pending = new Stack<DirectoryInfo>();
-                pending.Push(new DirectoryInfo(rootPath));
-
-                while (pending.Count > 0)
+                catch
                 {
-                    ct.ThrowIfCancellationRequested();
-                    var current = pending.Pop();
-
-                    try
-                    {
-                        foreach (var file in current.EnumerateFiles())
-                        {
-                            ct.ThrowIfCancellationRequested();
-                            if (SystemPathExclusions.ShouldExcludeFile(file))
-                            {
-                                continue;
-                            }
-
-                            long size;
-                            try
-                            {
-                                size = file.Length;
-                            }
-                            catch
-                            {
-                                continue;
-                            }
-
-                            var entry = new FileSystemEntry
-                            {
-                                Name = file.Name,
-                                FullPath = file.FullName,
-                                Bytes = size,
-                                IsFolder = false
-                            };
-
-                            if (topFiles.Count < maxItems)
-                            {
-                                topFiles.Enqueue(entry, size);
-                                continue;
-                            }
-
-                            topFiles.TryPeek(out _, out var smallestSize);
-                            if (size <= smallestSize)
-                            {
-                                continue;
-                            }
-
-                            topFiles.Dequeue();
-                            topFiles.Enqueue(entry, size);
-                        }
-                    }
-                    catch
-                    {
-                    }
-
-                    try
-                    {
-                        foreach (var childDir in current.EnumerateDirectories())
-                        {
-                            ct.ThrowIfCancellationRequested();
-                            if (SystemPathExclusions.ShouldExcludeDirectory(childDir))
-                            {
-                                continue;
-                            }
-
-                            pending.Push(childDir);
-                        }
-                    }
-                    catch
-                    {
-                    }
+                    return false;
                 }
-            }
+            }).ToList();
 
-            return topFiles.UnorderedItems
-                .Select(item => item.Element)
+            Parallel.ForEach(readyDrives, new ParallelOptions
+            {
+                CancellationToken = ct,
+                MaxDegreeOfParallelism = DriveScanParallelism
+            }, drive =>
+            {
+                foreach (var file in GetTopFilesOnDrive(drive, maxItems, ct))
+                {
+                    candidates.Add(file);
+                }
+            });
+
+            return candidates
                 .OrderByDescending(item => item.Bytes)
+                .Take(maxItems)
                 .ToList();
         }, ct);
+    }
+
+    private static List<FileSystemEntry> GetTopFilesOnDrive(DriveInfo drive, int maxItems, CancellationToken ct)
+    {
+        var topFiles = new PriorityQueue<FileSystemEntry, long>();
+        var rootPath = drive.RootDirectory.FullName;
+        var pending = new Stack<DirectoryInfo>();
+        pending.Push(new DirectoryInfo(rootPath));
+
+        while (pending.Count > 0)
+        {
+            ct.ThrowIfCancellationRequested();
+            var current = pending.Pop();
+
+            try
+            {
+                foreach (var item in current.EnumerateFileSystemInfos())
+                {
+                    ct.ThrowIfCancellationRequested();
+                    if (item is DirectoryInfo childDir)
+                    {
+                        if (SystemPathExclusions.ShouldExcludeDirectory(childDir))
+                        {
+                            continue;
+                        }
+
+                        pending.Push(childDir);
+                        continue;
+                    }
+
+                    if (item is not FileInfo file)
+                    {
+                        continue;
+                    }
+
+                    if (SystemPathExclusions.ShouldExcludeFile(file))
+                    {
+                        continue;
+                    }
+
+                    long size;
+                    try
+                    {
+                        size = file.Length;
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
+                    var entry = new FileSystemEntry
+                    {
+                        Name = file.Name,
+                        FullPath = file.FullName,
+                        Bytes = size,
+                        IsFolder = false
+                    };
+
+                    if (topFiles.Count < maxItems)
+                    {
+                        topFiles.Enqueue(entry, size);
+                        continue;
+                    }
+
+                    topFiles.TryPeek(out _, out var smallestSize);
+                    if (size <= smallestSize)
+                    {
+                        continue;
+                    }
+
+                    topFiles.Dequeue();
+                    topFiles.Enqueue(entry, size);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        return topFiles.UnorderedItems
+            .Select(item => item.Element)
+            .OrderByDescending(item => item.Bytes)
+            .ToList();
     }
 
     public async Task<List<StorageBreakdownItem>> GetStorageBreakdownAsync(DriveInfo drive, int topFolders = 8, CancellationToken ct = default)
@@ -258,9 +237,10 @@ public sealed class DriveScanner
         }
 
         var rootPath = drive.RootDirectory.FullName;
-        var top = await GetTopFoldersAsync(rootPath, topFolders, ct);
+        var scan = await ScanTopFoldersAsync(rootPath, topFolders, ct);
+        var top = scan.TopFolders;
         var topBytes = top.Sum(folder => folder.Bytes);
-        var rootBytes = await GetFolderSizeAsync(rootPath, ct);
+        var rootBytes = scan.RootBytes;
         var usedBytes = Math.Max(0, drive.TotalSize - drive.AvailableFreeSpace);
 
         var result = top
@@ -300,6 +280,75 @@ public sealed class DriveScanner
             .ToList();
     }
 
+    private async Task<TopFolderScanResult> ScanTopFoldersAsync(string rootPath, int top, CancellationToken ct)
+    {
+        return await Task.Run(() =>
+        {
+            var root = new DirectoryInfo(rootPath);
+            var topDirectories = new List<DirectoryInfo>();
+            long rootBytes = 0;
+
+            try
+            {
+                foreach (var item in root.EnumerateFileSystemInfos())
+                {
+                    ct.ThrowIfCancellationRequested();
+                    if (item is DirectoryInfo dir)
+                    {
+                        if (SystemPathExclusions.ShouldExcludeDirectory(dir))
+                        {
+                            continue;
+                        }
+
+                        topDirectories.Add(dir);
+                        continue;
+                    }
+
+                    if (item is not FileInfo file || SystemPathExclusions.ShouldExcludeFile(file))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        rootBytes = checked(rootBytes + file.Length);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            var result = new ConcurrentBag<FolderStat>();
+            Parallel.ForEach(topDirectories, new ParallelOptions
+            {
+                CancellationToken = ct,
+                MaxDegreeOfParallelism = SizeScanParallelism
+            }, dir =>
+            {
+                var size = GetFolderSize(dir.FullName, ct);
+                Interlocked.Add(ref rootBytes, size);
+                result.Add(new FolderStat
+                {
+                    Name = dir.Name,
+                    FullPath = dir.FullName,
+                    Bytes = size
+                });
+            });
+
+            _folderSizeCache[rootPath] = rootBytes;
+            return new TopFolderScanResult(
+                result
+                    .OrderByDescending(x => x.Bytes)
+                    .Take(Math.Max(0, top))
+                    .ToList(),
+                rootBytes);
+        }, ct);
+    }
+
     private long GetFolderSize(string folderPath, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
@@ -333,9 +382,31 @@ public sealed class DriveScanner
 
             try
             {
-                foreach (var file in current.EnumerateFiles())
+                foreach (var item in current.EnumerateFileSystemInfos())
                 {
                     ct.ThrowIfCancellationRequested();
+                    if (item is DirectoryInfo childDir)
+                    {
+                        try
+                        {
+                            if (SystemPathExclusions.ShouldExcludeDirectory(childDir))
+                            {
+                                continue;
+                            }
+                        }
+                        catch
+                        {
+                        }
+
+                        pending.Push(childDir);
+                        continue;
+                    }
+
+                    if (item is not FileInfo file)
+                    {
+                        continue;
+                    }
+
                     if (SystemPathExclusions.ShouldExcludeFile(file))
                     {
                         continue;
@@ -353,31 +424,10 @@ public sealed class DriveScanner
             catch
             {
             }
-
-            try
-            {
-                foreach (var childDir in current.EnumerateDirectories())
-                {
-                    ct.ThrowIfCancellationRequested();
-                    try
-                    {
-                        if (SystemPathExclusions.ShouldExcludeDirectory(childDir))
-                        {
-                            continue;
-                        }
-                    }
-                    catch
-                    {
-                    }
-
-                    pending.Push(childDir);
-                }
-            }
-            catch
-            {
-            }
         }
 
         return total;
     }
+
+    private sealed record TopFolderScanResult(List<FolderStat> TopFolders, long RootBytes);
 }

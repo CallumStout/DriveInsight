@@ -18,11 +18,17 @@ public partial class HeaderPane : UserControl
     public static readonly StyledProperty<ICommand?> RefreshCommandProperty =
         AvaloniaProperty.Register<HeaderPane, ICommand?>(nameof(RefreshCommand));
 
+    public static readonly StyledProperty<ICommand?> ExportCommandProperty =
+        AvaloniaProperty.Register<HeaderPane, ICommand?>(nameof(ExportCommand));
+
     public static readonly StyledProperty<ICommand?> UpdateCommandProperty =
         AvaloniaProperty.Register<HeaderPane, ICommand?>(nameof(UpdateCommand));
 
     public static readonly StyledProperty<bool> ShowRefreshButtonProperty =
         AvaloniaProperty.Register<HeaderPane, bool>(nameof(ShowRefreshButton), false);
+
+    public static readonly StyledProperty<bool> ShowExportButtonProperty =
+        AvaloniaProperty.Register<HeaderPane, bool>(nameof(ShowExportButton), false);
 
     public static readonly StyledProperty<bool> ShowUpdateButtonProperty =
         AvaloniaProperty.Register<HeaderPane, bool>(nameof(ShowUpdateButton), false);
@@ -32,6 +38,9 @@ public partial class HeaderPane : UserControl
 
     public static readonly StyledProperty<string> RefreshToolTipProperty =
         AvaloniaProperty.Register<HeaderPane, string>(nameof(RefreshToolTip), "Refresh");
+
+    public static readonly StyledProperty<string> ExportToolTipProperty =
+        AvaloniaProperty.Register<HeaderPane, string>(nameof(ExportToolTip), "Export CSV");
 
     public static readonly StyledProperty<string> UpdateToolTipProperty =
         AvaloniaProperty.Register<HeaderPane, string>(nameof(UpdateToolTip), "Update to latest release");
@@ -63,6 +72,12 @@ public partial class HeaderPane : UserControl
         set => SetValue(RefreshCommandProperty, value);
     }
 
+    public ICommand? ExportCommand
+    {
+        get => GetValue(ExportCommandProperty);
+        set => SetValue(ExportCommandProperty, value);
+    }
+
     public ICommand? UpdateCommand
     {
         get => GetValue(UpdateCommandProperty);
@@ -73,6 +88,12 @@ public partial class HeaderPane : UserControl
     {
         get => GetValue(ShowRefreshButtonProperty);
         set => SetValue(ShowRefreshButtonProperty, value);
+    }
+
+    public bool ShowExportButton
+    {
+        get => GetValue(ShowExportButtonProperty);
+        set => SetValue(ShowExportButtonProperty, value);
     }
 
     public bool ShowUpdateButton
@@ -91,6 +112,12 @@ public partial class HeaderPane : UserControl
     {
         get => GetValue(RefreshToolTipProperty);
         set => SetValue(RefreshToolTipProperty, value);
+    }
+
+    public string ExportToolTip
+    {
+        get => GetValue(ExportToolTipProperty);
+        set => SetValue(ExportToolTipProperty, value);
     }
 
     public string UpdateToolTip

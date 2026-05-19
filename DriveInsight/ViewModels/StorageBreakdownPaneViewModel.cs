@@ -35,6 +35,7 @@ public partial class StorageBreakdownPaneViewModel : ViewModelBase
     public ObservableCollection<StorageBreakdownItemViewModel> BreakdownItems { get; } = [];
     public ObservableCollection<ISeries> Series { get; } = [];
     public IAsyncRelayCommand RefreshStorageBreakdownCommand { get; }
+    public IAsyncRelayCommand? ExportCsvCommand { get; set; }
 
     [ObservableProperty]
     private DriveInfo? selectedDrive;

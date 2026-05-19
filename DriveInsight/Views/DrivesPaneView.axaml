@@ -93,6 +93,9 @@
           RowSpacing="0">
         <paneControls:HeaderPane Grid.Row="0"
                                  Title="Disk Manager"
+                                 ShowExportButton="True"
+                                 ExportToolTip="Export CSV"
+                                 ExportCommand="{Binding ExportCsvCommand}"
                                  ShowRefreshButton="True"
                                  RefreshToolTip="Refresh"
                                  RefreshCommand="{Binding RefreshAllCommand}">

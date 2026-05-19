@@ -27,6 +27,7 @@ public partial class DashboardPaneViewModel : ViewModelBase
     public ObservableCollection<LargestFileViewModel> LargestFiles { get; } = [];
     public ObservableCollection<InsightCardViewModel> SmartInsights { get; } = [];
     public IAsyncRelayCommand RefreshDashboardCommand { get; }
+    public IAsyncRelayCommand? ExportCsvCommand { get; set; }
 
     [ObservableProperty]
     private bool isLoadingLargestFiles;

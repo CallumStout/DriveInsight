@@ -28,6 +28,9 @@
           Margin="0">
         <controls:HeaderPane Grid.Row="0"
                              Title="Dashboard"
+                             ShowExportButton="True"
+                             ExportToolTip="Export CSV"
+                             ExportCommand="{Binding ExportCsvCommand}"
                              ShowRefreshButton="True"
                              RefreshToolTip="Refresh"
                              RefreshCommand="{Binding RefreshDashboardCommand}"

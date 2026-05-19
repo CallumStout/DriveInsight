@@ -30,6 +30,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
     public ObservableCollection<FileSystemNode> RootNodes { get; } = [];
     public ObservableCollection<DriveFolderRowViewModel> FolderRows { get; } = [];
     public HierarchicalTreeDataGridSource<DriveFolderRowViewModel> FolderRowsSource { get; }
+    public IAsyncRelayCommand? ExportCsvCommand { get; set; }
 
     [ObservableProperty]
     private DriveInfo? selectedDrive;

@@ -61,6 +61,9 @@
           RowSpacing="0">
         <paneControls:HeaderPane Grid.Row="0"
                                  Title="Storage Breakdown"
+                                 ShowExportButton="True"
+                                 ExportToolTip="Export CSV"
+                                 ExportCommand="{Binding ExportCsvCommand}"
                                  ShowRefreshButton="True"
                                  RefreshToolTip="Rescan storage"
                                  RefreshCommand="{Binding RefreshStorageBreakdownCommand}">
