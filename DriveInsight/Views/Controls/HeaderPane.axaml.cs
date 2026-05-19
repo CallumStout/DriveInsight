@@ -1,11 +1,17 @@
 using Avalonia;
 using Avalonia.Controls;
+using DriveInsight.Services;
 using System.Windows.Input;
 
 namespace DriveInsight.Views.Controls;
 
 public partial class HeaderPane : UserControl
 {
+    private readonly IAppThemeService themeService = new AppThemeService();
+
+    public static readonly StyledProperty<bool> IsDarkModeProperty =
+        AvaloniaProperty.Register<HeaderPane, bool>(nameof(IsDarkMode), false);
+
     public static readonly StyledProperty<string> TitleProperty =
         AvaloniaProperty.Register<HeaderPane, string>(nameof(Title), string.Empty);
 
@@ -52,6 +58,12 @@ public partial class HeaderPane : UserControl
     {
         get => GetValue(TitleProperty);
         set => SetValue(TitleProperty, value);
+    }
+
+    public bool IsDarkMode
+    {
+        get => GetValue(IsDarkModeProperty);
+        set => SetValue(IsDarkModeProperty, value);
     }
 
     public object? CenterContent
@@ -135,5 +147,16 @@ public partial class HeaderPane : UserControl
     public HeaderPane()
     {
         InitializeComponent();
+        SetCurrentValue(IsDarkModeProperty, themeService.IsDarkMode);
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == IsDarkModeProperty && change.NewValue is bool isDarkMode)
+        {
+            themeService.SetDarkMode(isDarkMode);
+        }
     }
 }

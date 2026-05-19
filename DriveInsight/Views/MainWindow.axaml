@@ -27,7 +27,10 @@
 	</Window.DataTemplates>
 
 	<Grid ColumnDefinitions="240,*">
-		<Border Grid.Column="0" Background="#F3F6FB" BorderBrush="#E3E8F2" BorderThickness="0,0,1,0">
+		<Border Grid.Column="0"
+                Background="{DynamicResource AppSidebarBackgroundBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="0,0,1,0">
 			<Grid Margin="16"
                   RowDefinitions="Auto,*">
                 <StackPanel Spacing="12">
@@ -35,7 +38,10 @@
                            Width="96"
                            Height="96"
                            Stretch="Uniform" />
-                    <TextBlock Text="DriveInsight" FontSize="26" FontWeight="SemiBold" Foreground="#1E63FF" />
+                    <TextBlock Text="DriveInsight"
+                               FontSize="26"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource AppAccentBrush}" />
                     <ItemsControl ItemsSource="{Binding Panes}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -50,16 +56,16 @@
                 </StackPanel>
 
                 <TextBlock Grid.Row="1"
-                           Text="v0.8.0"
+                           Text="v0.8.1"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Bottom"
-                           Foreground="#7A869B"
+                           Foreground="{DynamicResource AppMutedTextBrush}"
                            FontSize="11"
                            FontWeight="SemiBold" />
 			</Grid>
 		</Border>
 
-		<Border Grid.Column="1" Background="#FCFDFE" Padding="0">
+		<Border Grid.Column="1" Background="{DynamicResource AppWindowBackgroundBrush}" Padding="0">
 			<ContentControl Content="{Binding SelectedPane.Content}" />
 		</Border>
 	</Grid>

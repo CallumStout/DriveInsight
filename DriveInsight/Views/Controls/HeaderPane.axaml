@@ -5,8 +5,8 @@
 
     <UserControl.Styles>
         <Style Selector="Border.HeaderPaneRoot">
-            <Setter Property="Background" Value="#F7F9FD" />
-            <Setter Property="BorderBrush" Value="#E5EBF5" />
+            <Setter Property="Background" Value="{DynamicResource AppHeaderBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
             <Setter Property="BorderThickness" Value="0,0,0,1" />
             <Setter Property="CornerRadius" Value="0" />
             <Setter Property="Padding" Value="12,8" />
@@ -15,7 +15,7 @@
         <Style Selector="TextBlock.HeaderPaneTitle">
             <Setter Property="FontSize" Value="18" />
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Foreground" Value="#1A2436" />
+            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
@@ -23,17 +23,17 @@
             <Setter Property="Width" Value="34" />
             <Setter Property="Height" Value="34" />
             <Setter Property="Padding" Value="0" />
-            <Setter Property="Background" Value="#EEF2F7" />
-            <Setter Property="Foreground" Value="#7A869B" />
+            <Setter Property="Background" Value="{DynamicResource AppControlBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
             <Setter Property="CornerRadius" Value="8" />
         </Style>
 
         <Style Selector="Button.HeaderIconButton:pointerover">
-            <Setter Property="Background" Value="#E3EAF3" />
+            <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
         </Style>
 
         <Style Selector="Button.HeaderIconButton:pressed">
-            <Setter Property="Background" Value="#D7E0EC" />
+            <Setter Property="Background" Value="{DynamicResource AppControlPressedBrush}" />
         </Style>
 
         <Style Selector="Button.HeaderIconButton:disabled">
@@ -60,10 +60,55 @@
         <Style Selector="Button.HeaderUpdateButton:disabled">
             <Setter Property="Opacity" Value="0.65" />
         </Style>
+
+        <Style Selector="ToggleButton.HeaderThemeToggle">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="{DynamicResource AppControlBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+
+        <Style Selector="ToggleButton.HeaderThemeToggle:pointerover">
+            <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
+        </Style>
+
+        <Style Selector="ToggleButton.HeaderThemeToggle:pressed">
+            <Setter Property="Background" Value="{DynamicResource AppControlPressedBrush}" />
+        </Style>
+
+        <Style Selector="ToggleButton.HeaderThemeToggle /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <Style Selector="ToggleButton.HeaderThemeToggle:checked /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+
+        <Style Selector="ToggleButton.HeaderThemeToggle Path.SunIcon">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+
+        <Style Selector="ToggleButton.HeaderThemeToggle Path.MoonIcon">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
+        <Style Selector="ToggleButton.HeaderThemeToggle:checked Path.SunIcon">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
+        <Style Selector="ToggleButton.HeaderThemeToggle:checked Path.MoonIcon">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
     </UserControl.Styles>
 
     <Border Classes="HeaderPaneRoot">
-        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto"
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto,Auto"
               ColumnSpacing="20"
               VerticalAlignment="Center">
             <TextBlock Classes="HeaderPaneTitle"
@@ -80,7 +125,7 @@
             <TextBlock Grid.Column="3"
                        Text="{Binding UpdateStatus, ElementName=Root}"
                        IsVisible="{Binding ShowUpdateStatus, ElementName=Root}"
-                       Foreground="#607089"
+                       Foreground="{DynamicResource AppSecondaryTextBrush}"
                        FontSize="12"
                        TextTrimming="CharacterEllipsis"
                        MaxWidth="260"
@@ -105,7 +150,38 @@
                 </Grid>
             </Button>
 
-            <Button Grid.Column="5"
+            <ToggleButton Grid.Column="5"
+                          Classes="HeaderThemeToggle"
+                          IsChecked="{Binding IsDarkMode, ElementName=Root, Mode=TwoWay}"
+                          ToolTip.Tip="Toggle light or dark mode">
+                <Grid Width="22"
+                      Height="22"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                    <Path Classes="SunIcon"
+                          Width="19"
+                          Height="19"
+                          Stretch="Uniform"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Data="M9,5 A4,4 0 1,1 8.99,5 M9,0.8 L9,2.5 M9,15.5 L9,17.2 M0.8,9 L2.5,9 M15.5,9 L17.2,9 M3.2,3.2 L4.4,4.4 M13.6,13.6 L14.8,14.8 M14.8,3.2 L13.6,4.4 M4.4,13.6 L3.2,14.8"
+                          Stroke="{DynamicResource AppAccentBrush}"
+                          StrokeThickness="1.8"
+                          StrokeLineCap="Round"
+                          StrokeJoin="Round" />
+
+                    <Path Classes="MoonIcon"
+                          Width="18"
+                          Height="18"
+                          Stretch="Uniform"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Data="M13.5,14.6 C8.7,15.3 4.6,11.6 4.6,6.9 C4.6,4.7 5.5,2.7 7,1.3 C6.9,2 6.9,2.5 7,3.1 C7.5,7.1 10.8,10.4 14.8,10.9 C15.4,11 15.9,11 16.5,10.9 C15.8,12.8 14.8,14 13.5,14.6 Z"
+                          Fill="{DynamicResource AppAccentBrush}" />
+                </Grid>
+            </ToggleButton>
+
+            <Button Grid.Column="6"
                     Classes="HeaderIconButton"
                     IsVisible="{Binding ShowExportButton, ElementName=Root}"
                     ToolTip.Tip="{Binding ExportToolTip, ElementName=Root}"
@@ -113,18 +189,18 @@
                 <Grid Width="18"
                       Height="18">
                     <Path Data="M4,3 H14 L17,6 V15 H4 Z M14,3 V6 H17"
-                          Stroke="#7A869B"
+                          Stroke="{DynamicResource AppMutedTextBrush}"
                           StrokeThickness="1.7"
                           StrokeLineCap="Round"
                           StrokeJoin="Round" />
                     <Path Data="M7,9 H14 M7,12 H14"
-                          Stroke="#7A869B"
+                          Stroke="{DynamicResource AppMutedTextBrush}"
                           StrokeThickness="1.7"
                           StrokeLineCap="Round" />
                 </Grid>
             </Button>
 
-            <Button Grid.Column="6"
+            <Button Grid.Column="7"
                     Classes="HeaderIconButton"
                     IsVisible="{Binding ShowRefreshButton, ElementName=Root}"
                     ToolTip.Tip="{Binding RefreshToolTip, ElementName=Root}"

@@ -15,29 +15,29 @@
 
     <UserControl.Styles>
         <Style Selector="Button#ScanDriveButton">
-            <Setter Property="Background" Value="#1E63FF" />
+            <Setter Property="Background" Value="{DynamicResource AppAccentBrush}" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontWeight" Value="Bold" />
         </Style>
         <Style Selector="Button#ScanDriveButton:pointerover">
-            <Setter Property="Background" Value="#4E8DFF" />
+            <Setter Property="Background" Value="{DynamicResource AppAccentHoverBrush}" />
             <Setter Property="Foreground" Value="White" />
         </Style>
         <Style Selector="Button#ScanDriveButton /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#1E63FF" />
-            <Setter Property="BorderBrush" Value="#1E63FF" />
+            <Setter Property="Background" Value="{DynamicResource AppAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
         </Style>
         <Style Selector="Button#ScanDriveButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#4E8DFF" />
-            <Setter Property="BorderBrush" Value="#4E8DFF" />
+            <Setter Property="Background" Value="{DynamicResource AppAccentHoverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentHoverBrush}" />
         </Style>
         <Style Selector="Button#ScanDriveButton:pressed">
-            <Setter Property="Background" Value="#1548BD" />
+            <Setter Property="Background" Value="{DynamicResource AppAccentPressedBrush}" />
             <Setter Property="Foreground" Value="White" />
         </Style>
         <Style Selector="Button#ScanDriveButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#1548BD" />
-            <Setter Property="BorderBrush" Value="#1548BD" />
+            <Setter Property="Background" Value="{DynamicResource AppAccentPressedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentPressedBrush}" />
         </Style>
         <Style Selector="Button#ScanDriveButton:disabled">
             <Setter Property="Background" Value="#AFC4F8" />
@@ -58,7 +58,7 @@
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0,0,16,0" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#6E7C94" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
         </Style>
         <Style Selector="ListBox#DriveTabs > ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Padding" Value="12,4,12,4" />
@@ -75,16 +75,16 @@
         </Style>
         <Style Selector="ListBox#DriveTabs > ListBoxItem:selected">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#1E63FF" />
+            <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
         </Style>
         <Style Selector="ListBox#DriveTabs > ListBoxItem:selected TextBlock">
-            <Setter Property="Foreground" Value="#1E63FF" />
+            <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
         </Style>
         <Style Selector="ListBox#DriveTabs > ListBoxItem:selected /template/ ContentPresenter">
             <Setter Property="Background" Value="Transparent" />
         </Style>
         <Style Selector="ListBox#DriveTabs > ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="BorderBrush" Value="#1E63FF" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
             <Setter Property="BorderThickness" Value="0,0,0,2" />
         </Style>
     </UserControl.Styles>
@@ -124,7 +124,7 @@
                             Spacing="12"
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding Status}"
-                               Foreground="#69758A"
+                               Foreground="{DynamicResource AppSecondaryTextBrush}"
                                VerticalAlignment="Center" />
                     <Button x:Name="ScanDriveButton"
                             Content="Run Scan"
@@ -138,7 +138,7 @@
               RowDefinitions="Auto,*"
               RowSpacing="14">
             <Border Grid.Row="0"
-                    Background="#F7F9FC"
+                    Background="{DynamicResource AppPanelBackgroundBrush}"
                     CornerRadius="14"
                     Padding="18">
                 <Grid ColumnDefinitions="Auto,*"
@@ -177,7 +177,7 @@
                             <TextBlock Text="USED"
                                        FontSize="12"
                                        FontWeight="SemiBold"
-                                       Foreground="#7B879A"
+                                       Foreground="{DynamicResource AppMutedTextBrush}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
                     </Grid>
@@ -190,7 +190,7 @@
                             <TextBlock Text="TOTAL CAPACITY"
                                        FontSize="12"
                                        FontWeight="SemiBold"
-                                       Foreground="#7B879A" />
+                                       Foreground="{DynamicResource AppMutedTextBrush}" />
                             <TextBlock Text="{Binding TotalCapacityText}"
                                        FontSize="30"
                                        FontWeight="Bold" />
@@ -201,7 +201,7 @@
                             <TextBlock Text="USED SPACE"
                                        FontSize="12"
                                        FontWeight="SemiBold"
-                                       Foreground="#1E63FF" />
+                                       Foreground="{DynamicResource AppAccentBrush}" />
                             <TextBlock Text="{Binding UsedSpaceText}"
                                        FontSize="24"
                                        FontWeight="Bold" />
@@ -212,7 +212,7 @@
                             <TextBlock Text="AVAILABLE SPACE"
                                        FontSize="12"
                                        FontWeight="SemiBold"
-                                       Foreground="#7B879A" />
+                                       Foreground="{DynamicResource AppMutedTextBrush}" />
                             <TextBlock Text="{Binding AvailableSpaceText}"
                                        FontSize="24"
                                        FontWeight="Bold" />

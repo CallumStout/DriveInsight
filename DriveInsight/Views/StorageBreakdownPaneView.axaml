@@ -20,7 +20,7 @@
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0,0,16,0" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#6E7C94" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
         </Style>
         <Style Selector="ListBox#StorageDriveTabs > ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Padding" Value="12,4,12,4" />
@@ -37,21 +37,21 @@
         </Style>
         <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:selected">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#1E63FF" />
+            <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
         </Style>
         <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:selected TextBlock">
-            <Setter Property="Foreground" Value="#1E63FF" />
+            <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
         </Style>
         <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:selected /template/ ContentPresenter">
             <Setter Property="Background" Value="Transparent" />
         </Style>
         <Style Selector="ListBox#StorageDriveTabs > ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="BorderBrush" Value="#1E63FF" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
             <Setter Property="BorderThickness" Value="0,0,0,2" />
         </Style>
 
         <Style Selector="Border.StoragePanel">
-            <Setter Property="Background" Value="#F7F9FD" />
+            <Setter Property="Background" Value="{DynamicResource AppPanelBackgroundBrush}" />
             <Setter Property="CornerRadius" Value="14" />
             <Setter Property="Padding" Value="18" />
         </Style>
@@ -92,11 +92,11 @@
                             Spacing="12"
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding Status}"
-                               Foreground="#69758A"
+                               Foreground="{DynamicResource AppSecondaryTextBrush}"
                                VerticalAlignment="Center" />
                     <TextBlock Text="{Binding TotalScannedText}"
                                IsVisible="{Binding HasBreakdown}"
-                               Foreground="#1A2436"
+                               Foreground="{DynamicResource AppPrimaryTextBrush}"
                                FontWeight="Bold"
                                VerticalAlignment="Center" />
                 </StackPanel>
@@ -126,8 +126,8 @@
                             ZIndex="1"
                             IsHitTestVisible="False"
                             CornerRadius="90"
-                            Background="#FCFDFE"
-                            BorderBrush="#E4EAF4"
+                            Background="{DynamicResource AppChartCenterBrush}"
+                            BorderBrush="{DynamicResource AppChartCenterBorderBrush}"
                             BorderThickness="1"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center">
@@ -137,12 +137,12 @@
                             <TextBlock Text="{Binding TotalScannedText}"
                                        FontSize="28"
                                        FontWeight="Bold"
-                                       Foreground="#182235"
+                                       Foreground="{DynamicResource AppPrimaryTextBrush}"
                                        HorizontalAlignment="Center" />
                             <TextBlock Text="SCANNED"
                                        FontSize="12"
                                        FontWeight="SemiBold"
-                                       Foreground="#7A869B"
+                                       Foreground="{DynamicResource AppMutedTextBrush}"
                                        HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
@@ -152,7 +152,7 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Bottom"
                                Margin="0,0,0,12"
-                               Foreground="#607089"
+                               Foreground="{DynamicResource AppSecondaryTextBrush}"
                                FontSize="13"
                                FontWeight="SemiBold" />
                 </Grid>
@@ -166,10 +166,10 @@
                         <TextBlock Text="Breakdown"
                                    FontSize="24"
                                    FontWeight="Bold"
-                                   Foreground="#192232" />
+                                   Foreground="{DynamicResource AppPrimaryTextBrush}" />
                         <TextBlock Text="Grouped by the largest top-level folders found on the selected drive."
                                    FontSize="12"
-                                   Foreground="#6C7A90"
+                                   Foreground="{DynamicResource AppSecondaryTextBrush}"
                                    TextWrapping="Wrap"
                                    LineHeight="18" />
                     </StackPanel>
@@ -185,7 +185,7 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="viewModels:StorageBreakdownItemViewModel">
-                                    <Border Background="#FFFFFF"
+                                    <Border Background="{DynamicResource AppCardBackgroundBrush}"
                                             CornerRadius="10"
                                             Padding="12">
                                         <Grid ColumnDefinitions="Auto,*,Auto"
@@ -201,24 +201,24 @@
                                                 <TextBlock Text="{Binding Name}"
                                                            FontSize="14"
                                                            FontWeight="Bold"
-                                                           Foreground="#1A2436"
+                                                           Foreground="{DynamicResource AppPrimaryTextBrush}"
                                                            TextTrimming="CharacterEllipsis" />
                                                 <TextBlock Text="{Binding FullPath}"
                                                            IsVisible="{Binding HasPath}"
                                                            FontSize="10"
-                                                           Foreground="#8996AA"
+                                                           Foreground="{DynamicResource AppMutedTextBrush}"
                                                            TextTrimming="CharacterEllipsis" />
                                                 <TextBlock Text="{Binding PercentText}"
                                                            FontSize="11"
                                                            FontWeight="SemiBold"
-                                                           Foreground="#7A869B" />
+                                                           Foreground="{DynamicResource AppMutedTextBrush}" />
                                             </StackPanel>
 
                                             <TextBlock Grid.Column="2"
                                                        Text="{Binding SizeText}"
                                                        FontSize="14"
                                                        FontWeight="Bold"
-                                                       Foreground="#1A2436"
+                                                       Foreground="{DynamicResource AppPrimaryTextBrush}"
                                                        VerticalAlignment="Center" />
                                         </Grid>
                                     </Border>

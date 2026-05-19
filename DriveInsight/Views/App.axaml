@@ -2,7 +2,61 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="DriveInsight.Views.App"
              RequestedThemeVariant="Light">
-             <!-- Force light theme so custom light backgrounds always keep readable dark text/icons. -->
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="AppAccentBrush" Color="#1E63FF" />
+                    <SolidColorBrush x:Key="AppAccentHoverBrush" Color="#4E8DFF" />
+                    <SolidColorBrush x:Key="AppAccentPressedBrush" Color="#1548BD" />
+                    <SolidColorBrush x:Key="AppWindowBackgroundBrush" Color="#FCFDFE" />
+                    <SolidColorBrush x:Key="AppSidebarBackgroundBrush" Color="#F3F6FB" />
+                    <SolidColorBrush x:Key="AppHeaderBackgroundBrush" Color="#F7F9FD" />
+                    <SolidColorBrush x:Key="AppPanelBackgroundBrush" Color="#F7F9FD" />
+                    <SolidColorBrush x:Key="AppCardBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="AppSubtleCardBackgroundBrush" Color="#FDFEFF" />
+                    <SolidColorBrush x:Key="AppControlBackgroundBrush" Color="#EEF2F7" />
+                    <SolidColorBrush x:Key="AppControlHoverBrush" Color="#E3EAF3" />
+                    <SolidColorBrush x:Key="AppControlPressedBrush" Color="#D7E0EC" />
+                    <SolidColorBrush x:Key="AppBorderBrush" Color="#E3E8F2" />
+                    <SolidColorBrush x:Key="AppSoftBorderBrush" Color="#E5EBF5" />
+                    <SolidColorBrush x:Key="AppPrimaryTextBrush" Color="#1A2436" />
+                    <SolidColorBrush x:Key="AppStrongTextBrush" Color="#141922" />
+                    <SolidColorBrush x:Key="AppSecondaryTextBrush" Color="#607089" />
+                    <SolidColorBrush x:Key="AppMutedTextBrush" Color="#7A869B" />
+                    <SolidColorBrush x:Key="AppDisabledTextBrush" Color="#B7C2D4" />
+                    <SolidColorBrush x:Key="AppProgressTrackBrush" Color="#DCE4F2" />
+                    <SolidColorBrush x:Key="AppChartCenterBrush" Color="#FCFDFE" />
+                    <SolidColorBrush x:Key="AppChartCenterBorderBrush" Color="#E4EAF4" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AppAccentBrush" Color="#1E63FF" />
+                    <SolidColorBrush x:Key="AppAccentHoverBrush" Color="#4E8DFF" />
+                    <SolidColorBrush x:Key="AppAccentPressedBrush" Color="#1548BD" />
+                    <SolidColorBrush x:Key="AppWindowBackgroundBrush" Color="#0F141C" />
+                    <SolidColorBrush x:Key="AppSidebarBackgroundBrush" Color="#151B25" />
+                    <SolidColorBrush x:Key="AppHeaderBackgroundBrush" Color="#151B25" />
+                    <SolidColorBrush x:Key="AppPanelBackgroundBrush" Color="#18202B" />
+                    <SolidColorBrush x:Key="AppCardBackgroundBrush" Color="#202A36" />
+                    <SolidColorBrush x:Key="AppSubtleCardBackgroundBrush" Color="#202A36" />
+                    <SolidColorBrush x:Key="AppControlBackgroundBrush" Color="#243141" />
+                    <SolidColorBrush x:Key="AppControlHoverBrush" Color="#2D3B4E" />
+                    <SolidColorBrush x:Key="AppControlPressedBrush" Color="#36475D" />
+                    <SolidColorBrush x:Key="AppBorderBrush" Color="#263343" />
+                    <SolidColorBrush x:Key="AppSoftBorderBrush" Color="#263343" />
+                    <SolidColorBrush x:Key="AppPrimaryTextBrush" Color="#EAF0F8" />
+                    <SolidColorBrush x:Key="AppStrongTextBrush" Color="#F7FAFD" />
+                    <SolidColorBrush x:Key="AppSecondaryTextBrush" Color="#AAB7C8" />
+                    <SolidColorBrush x:Key="AppMutedTextBrush" Color="#8796AA" />
+                    <SolidColorBrush x:Key="AppDisabledTextBrush" Color="#526176" />
+                    <SolidColorBrush x:Key="AppProgressTrackBrush" Color="#2A3748" />
+                    <SolidColorBrush x:Key="AppChartCenterBrush" Color="#151B25" />
+                    <SolidColorBrush x:Key="AppChartCenterBorderBrush" Color="#2A3748" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />

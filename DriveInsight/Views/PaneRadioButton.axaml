@@ -41,32 +41,32 @@
         </Style>
 
         <Style Selector="RadioButton#PaneButton /template/ Path#PaneIcon">
-            <Setter Property="Fill" Value="#74839A" />
+            <Setter Property="Fill" Value="{DynamicResource AppMutedTextBrush}" />
         </Style>
 
         <Style Selector="RadioButton#PaneButton /template/ TextBlock#PaneText">
-            <Setter Property="Foreground" Value="#74839A" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
 
         <Style Selector="RadioButton#PaneButton:checked /template/ Border#SelectionBar">
-            <Setter Property="Background" Value="#1E63FF" />
+            <Setter Property="Background" Value="{DynamicResource AppAccentBrush}" />
         </Style>
 
         <Style Selector="RadioButton#PaneButton:checked /template/ Path#PaneIcon">
-            <Setter Property="Fill" Value="#1E63FF" />
+            <Setter Property="Fill" Value="{DynamicResource AppAccentBrush}" />
         </Style>
 
         <Style Selector="RadioButton#PaneButton:checked /template/ TextBlock#PaneText">
-            <Setter Property="Foreground" Value="#1E63FF" />
+            <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
         </Style>
 
         <Style Selector="RadioButton#PaneButton:disabled /template/ Path#PaneIcon">
-            <Setter Property="Fill" Value="#B7C2D4" />
+            <Setter Property="Fill" Value="{DynamicResource AppDisabledTextBrush}" />
         </Style>
 
         <Style Selector="RadioButton#PaneButton:disabled /template/ TextBlock#PaneText">
-            <Setter Property="Foreground" Value="#B7C2D4" />
+            <Setter Property="Foreground" Value="{DynamicResource AppDisabledTextBrush}" />
         </Style>
     </UserControl.Styles>
 

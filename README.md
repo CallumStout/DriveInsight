@@ -32,6 +32,7 @@ DriveInsight is a desktop app built with Avalonia that scans local drives, visua
 - Cleanup review dialog lists removable candidates with checkboxes, size, path, reason, and risk level.
 - Developer-oriented cleanup detects common build/cache folders inside Git repositories, such as `bin`, `obj`, `dist`, `build`, `target`, `.vs`, `.next`, and `coverage`.
 - Exports currently loaded results to CSV from the header export button. The export includes dashboard totals, drive capacity rows, largest files, storage breakdown rows, and scanned drive items once a drive scan has been run.
+- Supports light and dark themes from the header sun/moon toggle, with the selected theme saved between app launches.
 
 ## Tech Stack
 
@@ -50,6 +51,7 @@ DriveInsight is a desktop app built with Avalonia that scans local drives, visua
 - `Services/CleanupCandidateScannerService.cs` - Finds cleanup candidates for constrained drives.
 - `Services/CleanupRemovalService.cs` - Removes selected cleanup candidates.
 - `Services/ExportService.cs` - Builds DriveInsight CSV exports and opens the platform save-file picker.
+- `Services/AppThemeService.cs` - Applies the saved light/dark theme and persists theme changes.
 - `Services/IConfirmationDialogService.cs` and `Services/ICleanupReviewDialogService.cs` - UI dialog abstractions used by view models.
 - `Services/ConfirmationDialogService.cs` and `Services/CleanupReviewDialogService.cs` - Avalonia dialog service implementations.
 - `Services/StorageBreakdownItem.cs` - Storage breakdown item model for the top-folder pie chart.
@@ -82,6 +84,7 @@ dotnet run
 9. In the **Storage Breakdown** pane, selecting a drive calls `GetStorageBreakdownAsync(...)`.
 10. The storage breakdown reuses top-folder scanning, adds an **Other scanned files** bucket, and adds **System / Protected** for used drive space that cannot be attributed to accessible scanned files.
 11. Clicking the header export button opens a save-file picker and writes a CSV named with UK date ordering, such as `driveinsight-export-19-05-2026-1430.csv`.
+12. Clicking the header theme button switches Avalonia's requested theme variant and saves the choice to `%LocalAppData%\DriveInsight\theme.txt`.
 
 ## Notes / Known Limitations
 
