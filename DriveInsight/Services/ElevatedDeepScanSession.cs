@@ -140,9 +140,30 @@ public sealed class ElevatedDeepScanSession : IAsyncDisposable
         {
         }
 
-        reader.Dispose();
-        await writer.DisposeAsync();
-        await pipe.DisposeAsync();
+        try
+        {
+            reader.Dispose();
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            await writer.DisposeAsync();
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            await pipe.DisposeAsync();
+        }
+        catch
+        {
+        }
+
         gate.Dispose();
 
         try

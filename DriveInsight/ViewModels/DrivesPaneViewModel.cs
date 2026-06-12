@@ -180,6 +180,10 @@ public partial class DrivesPaneViewModel : ViewModelBase
 
             Status = $"Done. {FolderRows.Count} folders loaded.";
         }
+        catch
+        {
+            Status = $"Could not scan {SelectedDrive.Name}.";
+        }
         finally
         {
             IsBusy = false;
@@ -292,13 +296,20 @@ public partial class DrivesPaneViewModel : ViewModelBase
 
     private async Task StopDeepScanSessionAsync()
     {
-        if (_deepScanSession is null)
+        var session = _deepScanSession;
+        if (session is null)
         {
             return;
         }
 
-        await _deepScanSession.DisposeAsync();
         _deepScanSession = null;
+        try
+        {
+            await session.DisposeAsync();
+        }
+        catch
+        {
+        }
     }
 
     private bool CanScanSelectedDrive()
