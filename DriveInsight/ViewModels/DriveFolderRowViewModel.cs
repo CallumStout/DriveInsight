@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DriveInsight.Services;
 
 namespace DriveInsight.ViewModels;
 
@@ -43,6 +44,8 @@ public partial class DriveFolderRowViewModel : ViewModelBase
     public bool IsChildRow { get; init; }
 
     public bool IsPlaceholder { get; init; }
+
+    public StorageScanMode ScanMode { get; init; } = StorageScanMode.Normal;
 
     public ObservableCollection<DriveFolderRowViewModel> Children { get; } = [];
 

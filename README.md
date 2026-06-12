@@ -19,12 +19,13 @@ DriveInsight is a desktop app built with Avalonia that scans local drives, visua
   - system/protected space that is used by the drive but not visible to the scanner
   - scrollable legend with folder paths, percentages, and formatted sizes
 - Scans the selected drive and loads top-level folders by size.
+- Supports an optional **Deep Scan** in the **Drives** pane. Deep Scan prompts for administrator access once, then reuses an elevated helper session while expanding protected folders.
 - Displays results in a hierarchical **TreeDataGrid** with columns:
   - `FOLDER NAME`
   - `LOCATION`
   - `SIZE`
   - `USAGE SHARE`
-- Supports expanding folders to lazily load child folders/files.
+- Supports expanding folders to lazily load child folders/files. Rows created by Deep Scan continue using the elevated helper for nested expansion.
 - Smart insights include:
   - constrained-drive cleanup review
   - `Windows.old` removal with confirmation
@@ -44,10 +45,13 @@ DriveInsight is a desktop app built with Avalonia that scans local drives, visua
 
 ## Project Structure
 
-- `Program.cs` - App entry point and Avalonia setup.
+- `Program.cs` - App entry point, Avalonia setup, and elevated helper command routing.
 - `Views/` - Avalonia XAML UI, dashboard/drives/storage panes, and cleanup confirmation/review dialogs.
 - `ViewModels/` - MVVM logic for panes, cards, smart insights, and cleanup candidates.
-- `Services/DriveScanner.cs` - Drive, file, and folder scanning logic.
+- `Services/DriveScanner.cs` - Drive, file, and folder scanning logic with bounded parallel traversal.
+- `Services/ElevatedDeepScanRunner.cs` - Elevated helper entry points for deep drive scans and nested deep expansion.
+- `Services/ElevatedDeepScanSession.cs` - Named-pipe session used by the normal app to reuse one elevated helper process after the initial UAC prompt.
+- `Services/StorageScanMode.cs` - Normal vs deep scan mode selection for protected-path handling.
 - `Services/CleanupCandidateScannerService.cs` - Finds cleanup candidates for constrained drives.
 - `Services/CleanupRemovalService.cs` - Removes selected cleanup candidates.
 - `Services/ExportService.cs` - Builds DriveInsight CSV exports and opens the platform save-file picker.
@@ -75,20 +79,23 @@ dotnet run
 
 1. On startup, the dashboard loads ready drives via `DriveScanner.GetReadyDrives()`.
 2. Dashboard capacity cards are calculated from `DriveInfo` (`TotalSize`, `AvailableFreeSpace`).
-3. The dashboard scans for the largest files and builds smart insights from drive pressure, `Windows.old`, and largest-file results.
+3. The dashboard scans for the largest files using a bounded directory work queue and builds smart insights from drive pressure, `Windows.old`, and largest-file results.
 4. Clicking **Review cleanup** scans the constrained drive for low-risk cleanup targets and review-only candidates, then shows a checklist dialog.
 5. Clicking **Remove** on the `Windows.old` insight asks for confirmation before deletion.
-6. In the **Drives** pane, clicking **Run Scan** calls `GetTopFoldersAsync(rootPath)`.
-7. The scanner computes folder sizes recursively (access-safe traversal), orders by descending bytes, and returns top N folders (default: 20).
-8. Expanding a row lazily loads immediate children and computes their sizes for nested display.
-9. In the **Storage Breakdown** pane, selecting a drive calls `GetStorageBreakdownAsync(...)`.
-10. The storage breakdown reuses top-folder scanning, adds an **Other scanned files** bucket, and adds **System / Protected** for used drive space that cannot be attributed to accessible scanned files.
-11. Clicking the header export button opens a save-file picker and writes a CSV named with UK date ordering, such as `driveinsight-export-19-05-2026-1430.csv`.
-12. Clicking the header theme button switches Avalonia's requested theme variant and saves the choice to `%LocalAppData%\DriveInsight\theme.txt`.
+6. In the **Drives** pane, clicking **Run Scan** calls `GetTopFoldersAsync(rootPath)` in normal scan mode.
+7. The scanner computes folder sizes with a bounded parallel directory queue, orders by descending bytes, and returns top N folders (default: 20).
+8. Clicking **Deep Scan** starts an elevated helper process through UAC, connects to it over a named pipe, and requests a deep top-folder scan for the selected drive.
+9. Deep Scan relaxes protected-folder exclusions while still skipping reparse points/junctions and special protected files. The elevated helper remains alive for the deep scan session so expanding deep-scanned child rows does not prompt for UAC every time.
+10. Expanding a normal row lazily loads immediate children and computes their sizes in normal mode. Expanding a deep-scanned row asks the elevated helper to load and size that folder's immediate children.
+11. In the **Storage Breakdown** pane, selecting a drive calls `GetStorageBreakdownAsync(...)`.
+12. The storage breakdown reuses top-folder scanning, adds an **Other scanned files** bucket, and adds **System / Protected** for used drive space that cannot be attributed to accessible scanned files.
+13. Clicking the header export button opens a save-file picker and writes a CSV named with UK date ordering, such as `driveinsight-export-19-05-2026-1430.csv`.
+14. Clicking the header theme button switches Avalonia's requested theme variant and saves the choice to `%LocalAppData%\DriveInsight\theme.txt`.
 
 ## Notes / Known Limitations
 
-- Deep scans can still take time on very large drives.
+- Deep scans can still take time on very large drives and require approving a Windows UAC prompt.
+- The elevated helper is reused for nested expansion after a Deep Scan. Starting a normal scan or refreshing drives ends that helper session.
 - Some directories/files may be skipped if access is denied.
 - Reparse points/junctions are skipped to avoid recursion issues and inconsistent totals.
 - Folder sizes are recursive estimates based on accessible files.

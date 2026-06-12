@@ -44,6 +44,22 @@
             <Setter Property="Foreground" Value="#EEF3FF" />
         </Style>
 
+        <Style Selector="Button#DeepScanDriveButton">
+            <Setter Property="Background" Value="{DynamicResource AppControlBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style Selector="Button#DeepScanDriveButton:pointerover">
+            <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
+        </Style>
+
+        <Style Selector="Button#DeepScanDriveButton:pressed">
+            <Setter Property="Background" Value="{DynamicResource AppControlPressedBrush}" />
+        </Style>
+
         <Style Selector="TreeDataGrid#FoldersGrid">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
@@ -126,6 +142,10 @@
                     <TextBlock Text="{Binding Status}"
                                Foreground="{DynamicResource AppSecondaryTextBrush}"
                                VerticalAlignment="Center" />
+                    <Button x:Name="DeepScanDriveButton"
+                            Content="Deep Scan"
+                            ToolTip.Tip="Scan protected folders with administrator access"
+                            Command="{Binding DeepScanSelectedDriveCommand}" />
                     <Button x:Name="ScanDriveButton"
                             Content="Run Scan"
                             Command="{Binding ScanSelectedDriveCommand}" />

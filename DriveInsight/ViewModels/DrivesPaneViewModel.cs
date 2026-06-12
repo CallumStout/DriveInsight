@@ -21,6 +21,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
 {
     private readonly DriveScanner _scanner = new();
     private Func<Task>? _refreshDashboardAsync;
+    private ElevatedDeepScanSession? _deepScanSession;
     private const string FolderIconPathData = "M3,7 A2,2 0 0 1 5,5 H10 L12,7 H19 A2,2 0 0 1 21,9 V18 A2,2 0 0 1 19,20 H5 A2,2 0 0 1 3,18 Z";
     private const string FileIconPathData = "M6,2 H14 L20,8 V22 H6 Z M14,2 V8 H20";
     private readonly Dictionary<string, FileSystemNode> _nodesByPath = [];
@@ -125,6 +126,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
 
     public void RefreshAvailableDrives()
     {
+        _ = StopDeepScanSessionAsync();
         _scanner.ClearCache();
         var previouslySelectedName = SelectedDrive?.Name;
         var refreshed = _scanner.GetReadyDrives().ToList();
@@ -158,7 +160,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
         RefreshDriveCapacity();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanScanSelectedDrive))]
     private async Task ScanSelectedDrive()
     {
         if (SelectedDrive is null)
@@ -166,19 +168,84 @@ public partial class DrivesPaneViewModel : ViewModelBase
             return;
         }
 
+        try
+        {
+            IsBusy = true;
+            await StopDeepScanSessionAsync();
+            _scanner.ClearCache();
+            Status = $"Scanning {SelectedDrive.Name}...";
+
+            var top = await _scanner.GetTopFoldersAsync(SelectedDrive.RootDirectory.FullName);
+            PopulateFolderRows(top, StorageScanMode.Normal);
+
+            Status = $"Done. {FolderRows.Count} folders loaded.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanScanSelectedDrive))]
+    private async Task DeepScanSelectedDrive()
+    {
+        if (SelectedDrive is null)
+        {
+            return;
+        }
+
+        var processPath = Environment.ProcessPath;
+        if (string.IsNullOrWhiteSpace(processPath))
+        {
+            Status = "Could not start deep scan.";
+            return;
+        }
+
+        var driveName = SelectedDrive.Name;
         IsBusy = true;
-        _scanner.ClearCache();
-        Status = $"Scanning {SelectedDrive.Name}...";
+        Status = $"Requesting administrator access for {driveName}";
+
+        try
+        {
+            if (_deepScanSession is not null)
+            {
+                await _deepScanSession.DisposeAsync();
+                _deepScanSession = null;
+            }
+
+            _deepScanSession = await ElevatedDeepScanSession.StartAsync(processPath);
+            if (_deepScanSession is null)
+            {
+                Status = "Deep scan was cancelled.";
+                return;
+            }
+
+            Status = $"Deep scanning {driveName}...";
+            var top = await _deepScanSession.ScanDriveAsync(driveName);
+            PopulateFolderRows(top, StorageScanMode.Deep);
+            Status = $"Deep scan done. {FolderRows.Count} folders loaded.";
+        }
+        catch (System.ComponentModel.Win32Exception ex) when ((uint)ex.NativeErrorCode == 1223)
+        {
+            Status = "Deep scan was cancelled.";
+        }
+        catch
+        {
+            Status = $"Could not deep scan {driveName}.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private void PopulateFolderRows(IReadOnlyCollection<FolderStat> top, StorageScanMode mode)
+    {
         RootNodes.Clear();
         FolderRows.Clear();
         _nodesByPath.Clear();
 
-        var top = await _scanner.GetTopFoldersAsync(SelectedDrive.RootDirectory.FullName);
-        var totalBytes = 0L;
-        foreach (var item in top)
-        {
-            totalBytes += item.Bytes;
-        }
+        var totalBytes = top.Sum(item => item.Bytes);
 
         foreach (var item in top)
         {
@@ -188,7 +255,8 @@ public partial class DrivesPaneViewModel : ViewModelBase
                 FullPath = item.FullPath,
                 IsFolder = true,
                 Bytes = item.Bytes,
-                SizeText = StorageFormatter.Format(item.Bytes, 2)
+                SizeText = StorageFormatter.Format(item.Bytes, 2),
+                ScanMode = mode
             };
 
             folderNode.Children.Add(CreatePlaceholderNode());
@@ -215,18 +283,40 @@ public partial class DrivesPaneViewModel : ViewModelBase
                 IsFolder = true,
                 Depth = 0,
                 NameIndent = new Thickness(0, 0, 0, 0),
-                RowOffsetX = 0
+                RowOffsetX = 0,
+                ScanMode = mode
             });
             FolderRows[^1].Children.Add(CreatePlaceholderRow(1));
         }
+    }
 
-        Status = $"Done. {FolderRows.Count} folders loaded.";
-        IsBusy = false;
+    private async Task StopDeepScanSessionAsync()
+    {
+        if (_deepScanSession is null)
+        {
+            return;
+        }
+
+        await _deepScanSession.DisposeAsync();
+        _deepScanSession = null;
+    }
+
+    private bool CanScanSelectedDrive()
+    {
+        return !IsBusy && SelectedDrive is not null;
     }
 
     partial void OnSelectedDriveChanged(DriveInfo? value)
     {
         RefreshDriveCapacity();
+        ScanSelectedDriveCommand.NotifyCanExecuteChanged();
+        DeepScanSelectedDriveCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnIsBusyChanged(bool value)
+    {
+        ScanSelectedDriveCommand.NotifyCanExecuteChanged();
+        DeepScanSelectedDriveCommand.NotifyCanExecuteChanged();
     }
 
     public async Task EnsureChildrenLoadedAsync(FileSystemNode? node)
@@ -239,31 +329,20 @@ public partial class DrivesPaneViewModel : ViewModelBase
         Status = $"Loading {node.Name}...";
         node.Children.Clear();
 
-        var children = await _scanner.GetImmediateChildrenAsync(node.FullPath);
-        var folderPaths = children
-            .Where(child => child.IsFolder)
-            .Select(child => child.FullPath)
-            .ToList();
-
-        var folderSizes = folderPaths.Count > 0
-            ? await _scanner.GetFolderSizesAsync(folderPaths)
-            : new Dictionary<string, long>();
+        var children = node.ScanMode == StorageScanMode.Deep
+            ? await GetDeepChildrenAsync(node.FullPath)
+            : await GetNormalChildrenAsync(node.FullPath);
 
         foreach (var child in children)
         {
-            var resolvedBytes = child.Bytes;
-            if (child.IsFolder)
-            {
-                resolvedBytes = folderSizes.TryGetValue(child.FullPath, out var folderBytes) ? folderBytes : 0L;
-            }
-
             var childNode = new FileSystemNode
             {
                 Name = child.Name,
                 FullPath = child.FullPath,
                 IsFolder = child.IsFolder,
-                Bytes = resolvedBytes,
-                SizeText = StorageFormatter.Format(resolvedBytes, 2)
+                Bytes = child.Bytes,
+                SizeText = StorageFormatter.Format(child.Bytes, 2),
+                ScanMode = node.ScanMode
             };
 
             if (childNode.IsFolder)
@@ -277,6 +356,52 @@ public partial class DrivesPaneViewModel : ViewModelBase
 
         node.HasLoadedChildren = true;
         Status = $"Loaded {node.Children.Count} items in {node.Name}.";
+    }
+
+    private async Task<List<FileSystemEntry>> GetNormalChildrenAsync(string folderPath)
+    {
+        var children = await _scanner.GetImmediateChildrenAsync(folderPath);
+        var folderPaths = children
+            .Where(child => child.IsFolder)
+            .Select(child => child.FullPath)
+            .ToList();
+
+        if (folderPaths.Count == 0)
+        {
+            return children;
+        }
+
+        var folderSizes = await _scanner.GetFolderSizesAsync(folderPaths);
+        return children
+            .Select(child => child.IsFolder && folderSizes.TryGetValue(child.FullPath, out var folderBytes)
+                ? new FileSystemEntry
+                {
+                    Name = child.Name,
+                    FullPath = child.FullPath,
+                    IsFolder = child.IsFolder,
+                    Bytes = folderBytes
+                }
+                : child)
+            .ToList();
+    }
+
+    private async Task<List<FileSystemEntry>> GetDeepChildrenAsync(string folderPath)
+    {
+        try
+        {
+            if (_deepScanSession is null)
+            {
+                Status = "Run Deep Scan again before expanding protected folders.";
+                return [];
+            }
+
+            return await _deepScanSession.LoadChildrenAsync(folderPath);
+        }
+        catch
+        {
+            Status = $"Could not deep expand {Path.GetFileName(folderPath)}.";
+            return [];
+        }
     }
 
     private static FileSystemNode CreatePlaceholderNode() => new()
@@ -330,7 +455,8 @@ public partial class DrivesPaneViewModel : ViewModelBase
                     Depth = row.Depth + 1,
                     NameIndent = new Thickness(0),
                     RowOffsetX = 0,
-                    IsChildRow = true
+                    IsChildRow = true,
+                    ScanMode = child.ScanMode
                 };
 
                 if (child.IsFolder)

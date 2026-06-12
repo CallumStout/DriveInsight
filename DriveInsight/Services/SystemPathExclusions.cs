@@ -33,11 +33,11 @@ public static class SystemPathExclusions
         "Windows"
     };
 
-    public static bool ShouldExcludeFile(string filePath)
+    public static bool ShouldExcludeFile(string filePath, StorageScanMode mode = StorageScanMode.Normal)
     {
         try
         {
-            return ShouldExcludeFile(new FileInfo(filePath));
+            return ShouldExcludeFile(new FileInfo(filePath), mode);
         }
         catch
         {
@@ -45,13 +45,18 @@ public static class SystemPathExclusions
         }
     }
 
-    public static bool ShouldExcludeFile(FileInfo file)
+    public static bool ShouldExcludeFile(FileInfo file, StorageScanMode mode = StorageScanMode.Normal)
     {
         try
         {
-            return ProtectedFileNames.Contains(file.Name) ||
-                   HasProtectedFileAttributes(file.Attributes) ||
-                   ContainsProtectedDirectorySegment(file.FullName);
+            if (ProtectedFileNames.Contains(file.Name))
+            {
+                return true;
+            }
+
+            return mode == StorageScanMode.Normal &&
+                   (HasProtectedFileAttributes(file.Attributes) ||
+                    ContainsProtectedDirectorySegment(file.FullName));
         }
         catch
         {
@@ -59,11 +64,11 @@ public static class SystemPathExclusions
         }
     }
 
-    public static bool ShouldExcludeDirectory(string directoryPath)
+    public static bool ShouldExcludeDirectory(string directoryPath, StorageScanMode mode = StorageScanMode.Normal)
     {
         try
         {
-            return ShouldExcludeDirectory(new DirectoryInfo(directoryPath));
+            return ShouldExcludeDirectory(new DirectoryInfo(directoryPath), mode);
         }
         catch
         {
@@ -71,12 +76,16 @@ public static class SystemPathExclusions
         }
     }
 
-    public static bool ShouldExcludeDirectory(DirectoryInfo directory)
+    public static bool ShouldExcludeDirectory(DirectoryInfo directory, StorageScanMode mode = StorageScanMode.Normal)
     {
         try
         {
-            return ProtectedDirectoryNames.Contains(directory.Name) ||
-                   (directory.Attributes & FileAttributes.ReparsePoint) != 0;
+            if ((directory.Attributes & FileAttributes.ReparsePoint) != 0)
+            {
+                return true;
+            }
+
+            return mode == StorageScanMode.Normal && ProtectedDirectoryNames.Contains(directory.Name);
         }
         catch
         {

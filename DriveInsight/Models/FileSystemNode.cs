@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using DriveInsight.Services;
 
 namespace DriveInsight.Models;
 
@@ -17,6 +18,8 @@ public sealed class FileSystemNode
     public bool HasLoadedChildren { get; set; }
 
     public bool IsPlaceholder { get; init; }
+
+    public StorageScanMode ScanMode { get; init; } = StorageScanMode.Normal;
 
     public ObservableCollection<FileSystemNode> Children { get; } = [];
 }
