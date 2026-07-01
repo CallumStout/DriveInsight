@@ -19,7 +19,7 @@ DriveInsight is a desktop app built with Avalonia that scans local drives, visua
   - system/protected space that is used by the drive but not visible to the scanner
   - scrollable legend with folder paths, percentages, and formatted sizes
 - Scans the selected drive and loads top-level folders by size.
-- Supports an optional **Deep Scan** in the **Drives** pane. Deep Scan prompts for administrator access once, then reuses an elevated helper session while expanding protected folders.
+- Supports an optional **Deep Scan** in the **Drives** pane. Deep Scan prompts for administrator access once, then reuses an elevated helper session while expanding folders that need administrator access.
 - Displays results in a hierarchical **TreeDataGrid** with columns:
   - `FOLDER NAME`
   - `LOCATION`
@@ -51,7 +51,7 @@ DriveInsight is a desktop app built with Avalonia that scans local drives, visua
 - `Services/DriveScanner.cs` - Drive, file, and folder scanning logic with bounded parallel traversal.
 - `Services/ElevatedDeepScanRunner.cs` - Elevated helper entry points for deep drive scans and nested deep expansion.
 - `Services/ElevatedDeepScanSession.cs` - Named-pipe session used by the normal app to reuse one elevated helper process after the initial UAC prompt.
-- `Services/StorageScanMode.cs` - Normal vs deep scan mode selection for protected-path handling.
+- `Services/StorageScanMode.cs` - Normal vs deep scan mode selection for elevated helper routing.
 - `Services/CleanupCandidateScannerService.cs` - Finds cleanup candidates for constrained drives.
 - `Services/CleanupRemovalService.cs` - Removes selected cleanup candidates.
 - `Services/ExportService.cs` - Builds DriveInsight CSV exports and opens the platform save-file picker.
@@ -85,7 +85,7 @@ dotnet run
 6. In the **Drives** pane, clicking **Run Scan** calls `GetTopFoldersAsync(rootPath)` in normal scan mode.
 7. The scanner computes folder sizes with a bounded parallel directory queue, orders by descending bytes, and returns top N folders (default: 20).
 8. Clicking **Deep Scan** starts an elevated helper process through UAC, connects to it over a named pipe, and requests a deep top-folder scan for the selected drive.
-9. Deep Scan relaxes protected-folder exclusions while still skipping reparse points/junctions and special protected files. The elevated helper remains alive for the deep scan session so expanding deep-scanned child rows does not prompt for UAC every time.
+9. Scans do not intentionally exclude files by name, system attribute, or protected-path segment. Reparse points/junctions are still skipped to avoid recursive traversal and double-counting. The elevated helper remains alive for the deep scan session so expanding deep-scanned child rows does not prompt for UAC every time.
 10. Expanding a normal row lazily loads immediate children and computes their sizes in normal mode. Expanding a deep-scanned row asks the elevated helper to load and size that folder's immediate children.
 11. In the **Storage Breakdown** pane, selecting a drive calls `GetStorageBreakdownAsync(...)`.
 12. The storage breakdown reuses top-folder scanning, adds an **Other scanned files** bucket, and adds **System / Protected** for used drive space that cannot be attributed to accessible scanned files.
@@ -96,12 +96,12 @@ dotnet run
 
 - Deep scans can still take time on very large drives and require approving a Windows UAC prompt.
 - The elevated helper is reused for nested expansion after a Deep Scan. Starting a normal scan or refreshing drives ends that helper session.
-- Some directories/files may be skipped if access is denied.
+- Some directories/files may still be missing if Windows denies enumeration or size reads.
 - Reparse points/junctions are skipped to avoid recursion issues and inconsistent totals.
 - Folder sizes are recursive estimates based on accessible files.
 - CSV exports contain the data currently loaded in the app. Scanned drive rows are only included after the user runs a drive scan.
 - Storage Breakdown is folder-based rather than semantic-category-based. It shows where space is used instead of guessing whether folders are games, apps, media, or backups.
-- **System / Protected** is calculated from drive-used bytes minus scanner-visible bytes, so it can include OS files, reserved storage, restore data, protected folders, and other inaccessible filesystem data.
+- **System / Protected** and **Unattributed system space** are calculated from drive-used bytes minus scanner-visible bytes, so they can include reserved storage, restore data, NTFS metadata, locked files, and anything else Windows reports as used but does not expose as enumerable files.
 - Cleanup actions may require administrator permission for protected locations.
 - Cleanup candidates marked `Review` are intentionally unchecked by default because DriveInsight cannot know whether user/project files are safe to remove.
 
