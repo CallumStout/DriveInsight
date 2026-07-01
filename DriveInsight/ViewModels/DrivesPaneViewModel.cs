@@ -24,6 +24,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
     private ElevatedDeepScanSession? _deepScanSession;
     private const string FolderIconPathData = "M3,7 A2,2 0 0 1 5,5 H10 L12,7 H19 A2,2 0 0 1 21,9 V18 A2,2 0 0 1 19,20 H5 A2,2 0 0 1 3,18 Z";
     private const string FileIconPathData = "M6,2 H14 L20,8 V22 H6 Z M14,2 V8 H20";
+    private const string UnscannedSpaceName = "System / protected / unscanned";
     private readonly Dictionary<string, FileSystemNode> _nodesByPath = [];
     private readonly HashSet<string> _expandingRows = new(StringComparer.OrdinalIgnoreCase);
 
@@ -178,7 +179,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
             var top = await _scanner.GetTopFoldersAsync(SelectedDrive.RootDirectory.FullName);
             PopulateFolderRows(top, StorageScanMode.Normal);
 
-            Status = $"Done. {FolderRows.Count} folders loaded.";
+            Status = BuildScanCompleteStatus();
         }
         catch
         {
@@ -227,7 +228,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
             Status = $"Deep scanning {driveName}...";
             var top = await _deepScanSession.ScanDriveAsync(driveName);
             PopulateFolderRows(top, StorageScanMode.Deep);
-            Status = $"Deep scan done. {FolderRows.Count} folders loaded.";
+            Status = $"Deep scan done. {FolderRows.Count(row => row.IsFolder)} folders loaded.";
         }
         catch (System.ComponentModel.Win32Exception ex) when ((uint)ex.NativeErrorCode == 1223)
         {
@@ -249,7 +250,8 @@ public partial class DrivesPaneViewModel : ViewModelBase
         FolderRows.Clear();
         _nodesByPath.Clear();
 
-        var totalBytes = top.Sum(item => item.Bytes);
+        var scannedBytes = top.Sum(item => item.Bytes);
+        var totalBytes = Math.Max(UsedSpaceBytes, scannedBytes);
 
         foreach (var item in top)
         {
@@ -292,6 +294,62 @@ public partial class DrivesPaneViewModel : ViewModelBase
             });
             FolderRows[^1].Children.Add(CreatePlaceholderRow(1));
         }
+
+        var unscannedBytes = Math.Max(0, UsedSpaceBytes - scannedBytes);
+        if (unscannedBytes > 0)
+        {
+            AddSyntheticUsageRow(
+                UnscannedSpaceName,
+                SelectedDrive?.RootDirectory.FullName ?? string.Empty,
+                unscannedBytes,
+                totalBytes,
+                mode);
+        }
+    }
+
+    private void AddSyntheticUsageRow(
+        string name,
+        string fullPath,
+        long bytes,
+        long totalBytes,
+        StorageScanMode mode)
+    {
+        var usageRatio = totalBytes > 0 ? bytes / (double)totalBytes : 0;
+        var clampedRatio = Math.Clamp(usageRatio, 0.0, 1.0);
+
+        FolderRows.Add(new DriveFolderRowViewModel
+        {
+            Name = name,
+            FullPath = fullPath,
+            SizeText = StorageFormatter.Format(bytes, 2),
+            SizeBytes = bytes,
+            UsagePercent = clampedRatio * 100.0,
+            UsageBrush = "#C75000",
+            IconPathData = FileIconPathData,
+            IconContainerSize = 30,
+            IconSize = 16,
+            IconBackground = "#FFF3E8",
+            IconFill = "#C75000",
+            TextSize = 13,
+            UsageBarHeight = 8,
+            IsFolder = false,
+            Depth = 0,
+            NameIndent = new Thickness(0, 0, 0, 0),
+            RowOffsetX = 0,
+            ScanMode = mode
+        });
+    }
+
+    private string BuildScanCompleteStatus()
+    {
+        var folderCount = FolderRows.Count(row => row.IsFolder);
+        var unscannedBytes = FolderRows
+            .Where(row => string.Equals(row.Name, UnscannedSpaceName, StringComparison.Ordinal))
+            .Sum(row => row.SizeBytes);
+
+        return unscannedBytes > 0
+            ? $"Done. {folderCount} folders loaded. {StorageFormatter.Format(unscannedBytes, 2)} is protected or unscanned."
+            : $"Done. {folderCount} folders loaded.";
     }
 
     private async Task StopDeepScanSessionAsync()
