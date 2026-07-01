@@ -34,6 +34,15 @@ public sealed class DriveScanner
         return result.TopFolders;
     }
 
+    public async Task<TopFolderScanResult> GetTopFolderScanAsync(
+        string rootPath,
+        int top = 20,
+        StorageScanMode mode = StorageScanMode.Normal,
+        CancellationToken ct = default)
+    {
+        return await ScanTopFoldersAsync(rootPath, top, mode, ct);
+    }
+
     public async Task<List<FileSystemEntry>> GetImmediateChildrenAsync(
         string folderPath,
         StorageScanMode mode = StorageScanMode.Normal,
@@ -578,7 +587,7 @@ public sealed class DriveScanner
         }
     }
 
-    private sealed record TopFolderScanResult(List<FolderStat> TopFolders, long RootBytes);
+    public sealed record TopFolderScanResult(List<FolderStat> TopFolders, long RootBytes);
 
     private sealed record DirectoryScanWork(DirectoryInfo Directory, FolderSizeAccumulator Accumulator);
 

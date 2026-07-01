@@ -58,7 +58,7 @@ public static class ElevatedDeepScanRunner
         }
 
         var scanner = new DriveScanner();
-        var topFolders = await scanner.GetTopFoldersAsync(
+        var scan = await scanner.GetTopFolderScanAsync(
             drive.RootDirectory.FullName,
             top: 20,
             mode: StorageScanMode.Deep);
@@ -68,7 +68,7 @@ public static class ElevatedDeepScanRunner
             Directory.CreateDirectory(directory);
         }
 
-        await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(topFolders));
+        await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(scan.TopFolders));
         return 0;
     }
 
@@ -168,13 +168,19 @@ public static class ElevatedDeepScanRunner
     {
         try
         {
-            return request.Command switch
+            if (request.Command == ElevatedScanCommand.ScanDrive)
             {
-                ElevatedScanCommand.ScanDrive => new ElevatedScanResponse
+                var scan = await ScanDriveAsync(request.TargetPath);
+                return new ElevatedScanResponse
                 {
                     Success = true,
-                    TopFolders = await ScanDriveAsync(request.TargetPath)
-                },
+                    TopFolders = scan.TopFolders,
+                    RootBytes = scan.RootBytes
+                };
+            }
+
+            return request.Command switch
+            {
                 ElevatedScanCommand.LoadChildren => new ElevatedScanResponse
                 {
                     Success = true,
@@ -202,7 +208,7 @@ public static class ElevatedDeepScanRunner
         await writer.WriteLineAsync(JsonSerializer.Serialize(response));
     }
 
-    private static async Task<List<FolderStat>> ScanDriveAsync(string driveName)
+    private static async Task<DriveScanner.TopFolderScanResult> ScanDriveAsync(string driveName)
     {
         var drive = DriveInfo.GetDrives()
             .FirstOrDefault(candidate => string.Equals(candidate.Name, driveName, StringComparison.OrdinalIgnoreCase));
@@ -213,7 +219,7 @@ public static class ElevatedDeepScanRunner
         }
 
         var scanner = new DriveScanner();
-        return await scanner.GetTopFoldersAsync(
+        return await scanner.GetTopFolderScanAsync(
             drive.RootDirectory.FullName,
             top: 20,
             mode: StorageScanMode.Deep);

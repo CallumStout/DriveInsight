@@ -45,6 +45,8 @@ public partial class DriveFolderRowViewModel : ViewModelBase
 
     public bool IsPlaceholder { get; init; }
 
+    public SyntheticDriveRowKind SyntheticKind { get; init; } = SyntheticDriveRowKind.None;
+
     public StorageScanMode ScanMode { get; init; } = StorageScanMode.Normal;
 
     public ObservableCollection<DriveFolderRowViewModel> Children { get; } = [];
@@ -54,4 +56,11 @@ public partial class DriveFolderRowViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool hasLoadedChildren;
+}
+
+public enum SyntheticDriveRowKind
+{
+    None,
+    OtherScannedFiles,
+    UnattributedSpace
 }

@@ -66,7 +66,7 @@ public sealed class ElevatedDeepScanSession : IAsyncDisposable
         }
     }
 
-    public async Task<List<FolderStat>> ScanDriveAsync(string driveName)
+    public async Task<DriveScanner.TopFolderScanResult> ScanDriveAsync(string driveName)
     {
         var response = await SendAsync(new ElevatedScanRequest
         {
@@ -74,7 +74,9 @@ public sealed class ElevatedDeepScanSession : IAsyncDisposable
             TargetPath = driveName
         });
 
-        return response.TopFolders ?? [];
+        return new DriveScanner.TopFolderScanResult(
+            response.TopFolders ?? [],
+            Math.Max(0, response.RootBytes));
     }
 
     public async Task<List<FileSystemEntry>> LoadChildrenAsync(string folderPath)
@@ -195,6 +197,8 @@ public sealed class ElevatedScanResponse
     public string? Error { get; init; }
 
     public List<FolderStat>? TopFolders { get; init; }
+
+    public long RootBytes { get; init; }
 
     public List<FileSystemEntry>? Children { get; init; }
 }
