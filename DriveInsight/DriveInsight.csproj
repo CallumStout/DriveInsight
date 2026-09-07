@@ -11,6 +11,7 @@
     <Product>DriveInsight</Product>
     <Description>DriveInsight desktop storage analyzer.</Description>
     <Copyright>Copyright © 97 Solutions</Copyright>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
