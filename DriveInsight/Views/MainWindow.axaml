@@ -14,17 +14,7 @@
         UseLayoutRounding="True"
 		Icon="/Assets/App.ico">
 
-	<Window.DataTemplates>
-		<DataTemplate DataType="viewModels:DashboardPaneViewModel">
-			<views:DashBoardPaneView />
-		</DataTemplate>
-		<DataTemplate DataType="viewModels:DrivesPaneViewModel">
-			<views:DrivesPaneView />
-		</DataTemplate>
-		<DataTemplate DataType="viewModels:StorageBreakdownPaneViewModel">
-			<views:StorageBreakdownPaneView />
-		</DataTemplate>
-	</Window.DataTemplates>
+
 
 	<Grid ColumnDefinitions="240,*">
 		<Border Grid.Column="0"
@@ -56,7 +46,7 @@
                 </StackPanel>
 
                 <TextBlock Grid.Row="1"
-                           Text="v1.0.3"
+                           Text="v1.1.0"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Bottom"
                            Foreground="{DynamicResource AppMutedTextBrush}"
@@ -66,7 +56,7 @@
 		</Border>
 
 		<Border Grid.Column="1" Background="{DynamicResource AppWindowBackgroundBrush}" Padding="0">
-			<ContentControl Content="{Binding SelectedPane.Content}" />
+			<Grid x:Name="PaneHost" />
 		</Border>
 	</Grid>
 </Window>

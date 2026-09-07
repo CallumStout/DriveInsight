@@ -155,7 +155,7 @@
                                            Foreground="{DynamicResource AppPrimaryTextBrush}" />
                             </Grid>
 
-                            <TextBlock Text="Scanning for largest files..."
+                            <TextBlock Text="{Binding LargestFilesScanStatus}"
                                        IsVisible="{Binding IsLoadingLargestFiles}"
                                        Foreground="{DynamicResource AppSecondaryTextBrush}"
                                        FontSize="12"

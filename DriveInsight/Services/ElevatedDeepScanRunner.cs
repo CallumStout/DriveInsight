@@ -32,6 +32,7 @@ public static class ElevatedDeepScanRunner
 
     public static async Task<int> RunAsync(string[] args)
     {
+        WindowsBackupPrivilege.TryEnable();
         if (IsDeepHelperCommand(args))
         {
             return await RunHelperAsync(args);
@@ -81,11 +82,6 @@ public static class ElevatedDeepScanRunner
 
         var folderPath = args[1];
         var outputPath = args[2];
-        if (!Directory.Exists(folderPath))
-        {
-            return 4;
-        }
-
         var scanner = new DriveScanner();
         var children = await scanner.GetImmediateChildrenAsync(folderPath, StorageScanMode.Deep);
         var folderPaths = children
@@ -136,6 +132,7 @@ public static class ElevatedDeepScanRunner
         using var reader = new StreamReader(pipe);
         await using var writer = new StreamWriter(pipe) { AutoFlush = true };
 
+        var scanner = new DriveScanner();
         while (true)
         {
             var requestJson = await reader.ReadLineAsync();
@@ -160,22 +157,27 @@ public static class ElevatedDeepScanRunner
                 return 0;
             }
 
-            await WriteResponseAsync(writer, await HandleRequestAsync(request));
+            await WriteResponseAsync(writer, await HandleRequestAsync(request, scanner));
         }
     }
 
-    private static async Task<ElevatedScanResponse> HandleRequestAsync(ElevatedScanRequest request)
+    private static async Task<ElevatedScanResponse> HandleRequestAsync(ElevatedScanRequest request, DriveScanner scanner)
     {
         try
         {
             if (request.Command == ElevatedScanCommand.ScanDrive)
             {
-                var scan = await ScanDriveAsync(request.TargetPath);
+                scanner.ClearCache();
+                var scan = await ScanDriveAsync(request.TargetPath, scanner);
                 return new ElevatedScanResponse
                 {
                     Success = true,
                     TopFolders = scan.TopFolders,
-                    RootBytes = scan.RootBytes
+                    RootBytes = scan.RootBytes,
+                    FileCount = scan.FileCount,
+                    UnreadableDirectories = scan.UnreadableDirectories,
+                    SkippedLinks = scan.SkippedLinks,
+                    ElapsedSeconds = scan.ElapsedSeconds
                 };
             }
 
@@ -184,7 +186,7 @@ public static class ElevatedDeepScanRunner
                 ElevatedScanCommand.LoadChildren => new ElevatedScanResponse
                 {
                     Success = true,
-                    Children = await LoadChildrenAsync(request.TargetPath)
+                    Children = await LoadChildrenAsync(request.TargetPath, scanner)
                 },
                 _ => new ElevatedScanResponse
                 {
@@ -208,7 +210,7 @@ public static class ElevatedDeepScanRunner
         await writer.WriteLineAsync(JsonSerializer.Serialize(response));
     }
 
-    private static async Task<DriveScanner.TopFolderScanResult> ScanDriveAsync(string driveName)
+    private static async Task<DriveScanner.TopFolderScanResult> ScanDriveAsync(string driveName, DriveScanner scanner)
     {
         var drive = DriveInfo.GetDrives()
             .FirstOrDefault(candidate => string.Equals(candidate.Name, driveName, StringComparison.OrdinalIgnoreCase));
@@ -218,21 +220,14 @@ public static class ElevatedDeepScanRunner
             throw new InvalidOperationException("Drive is not ready.");
         }
 
-        var scanner = new DriveScanner();
         return await scanner.GetTopFolderScanAsync(
             drive.RootDirectory.FullName,
             top: 20,
             mode: StorageScanMode.Deep);
     }
 
-    private static async Task<List<FileSystemEntry>> LoadChildrenAsync(string folderPath)
+    private static async Task<List<FileSystemEntry>> LoadChildrenAsync(string folderPath, DriveScanner scanner)
     {
-        if (!Directory.Exists(folderPath))
-        {
-            throw new DirectoryNotFoundException("Folder does not exist.");
-        }
-
-        var scanner = new DriveScanner();
         var children = await scanner.GetImmediateChildrenAsync(folderPath, StorageScanMode.Deep);
         var folderPaths = children
             .Where(child => child.IsFolder)

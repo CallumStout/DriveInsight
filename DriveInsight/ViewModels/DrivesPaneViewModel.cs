@@ -22,6 +22,8 @@ public partial class DrivesPaneViewModel : ViewModelBase
     private readonly DriveScanner _scanner = new();
     private Func<Task>? _refreshDashboardAsync;
     private ElevatedDeepScanSession? _deepScanSession;
+    private int _capacityRequest;
+    public Task Initialization { get; }
     private const string FolderIconPathData = "M3,7 A2,2 0 0 1 5,5 H10 L12,7 H19 A2,2 0 0 1 21,9 V18 A2,2 0 0 1 19,20 H5 A2,2 0 0 1 3,18 Z";
     private const string FileIconPathData = "M6,2 H14 L20,8 V22 H6 Z M14,2 V8 H20";
     private const string OtherScannedSpaceName = "Other scanned files";
@@ -108,7 +110,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
     {
         _refreshDashboardAsync = refreshDashboardAsync;
         FolderRowsSource = CreateFolderRowsSource();
-        RefreshAvailableDrives();
+        Initialization = RefreshAvailableDrivesAsync();
     }
 
     public void SetDashboardRefresh(Func<Task> refreshDashboardAsync)
@@ -121,19 +123,19 @@ public partial class DrivesPaneViewModel : ViewModelBase
     {
         if (_refreshDashboardAsync is null)
         {
-            RefreshAvailableDrives();
+            await RefreshAvailableDrivesAsync();
             return;
         }
 
         await _refreshDashboardAsync();
     }
 
-    public void RefreshAvailableDrives()
+    public async Task RefreshAvailableDrivesAsync()
     {
         _ = StopDeepScanSessionAsync();
         _scanner.ClearCache();
         var previouslySelectedName = SelectedDrive?.Name;
-        var refreshed = _scanner.GetReadyDrives().ToList();
+        var refreshed = await Task.Run(() => _scanner.GetReadyDrives().ToList());
 
         Drives.Clear();
         foreach (var drive in refreshed)
@@ -161,7 +163,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
             Status = "Ready";
         }
 
-        RefreshDriveCapacity();
+        await RefreshDriveCapacityAsync();
     }
 
     [RelayCommand(CanExecute = nameof(CanScanSelectedDrive))]
@@ -182,7 +184,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
             var scan = await _scanner.GetTopFolderScanAsync(SelectedDrive.RootDirectory.FullName);
             PopulateFolderRows(scan.TopFolders, StorageScanMode.Normal, scan.RootBytes);
 
-            Status = BuildScanCompleteStatus();
+            Status = BuildScanCompleteStatus() + FormatScanDetails(scan);
         }
         catch
         {
@@ -231,7 +233,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
             Status = $"Deep scanning {driveName}...";
             var scan = await _deepScanSession.ScanDriveAsync(driveName);
             PopulateFolderRows(scan.TopFolders, StorageScanMode.Deep, scan.RootBytes);
-            Status = BuildScanCompleteStatus("Deep scan done");
+            Status = BuildScanCompleteStatus("Deep scan done") + FormatScanDetails(scan);
         }
         catch (System.ComponentModel.Win32Exception ex) when ((uint)ex.NativeErrorCode == 1223)
         {
@@ -417,6 +419,16 @@ public partial class DrivesPaneViewModel : ViewModelBase
         return $"{prefix}. {folderCount} folders. {StorageFormatter.Format(unscannedBytes, 2)} {description}.";
     }
 
+    private static string FormatScanDetails(DriveScanner.TopFolderScanResult scan)
+    {
+        var details = $" {scan.FileCount:N0} files in {scan.ElapsedSeconds:0.0}s.";
+        if (scan.UnreadableDirectories > 0)
+            details += $" {scan.UnreadableDirectories:N0} folders could not be fully read.";
+        if (scan.SkippedLinks > 0)
+            details += $" {scan.SkippedLinks:N0} directory links skipped.";
+        return details;
+    }
+
     private async Task StopDeepScanSessionAsync()
     {
         var session = _deepScanSession;
@@ -442,7 +454,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
 
     partial void OnSelectedDriveChanged(DriveInfo? value)
     {
-        RefreshDriveCapacity();
+        _ = RefreshDriveCapacityAsync();
         ScanSelectedDriveCommand.NotifyCanExecuteChanged();
         DeepScanSelectedDriveCommand.NotifyCanExecuteChanged();
     }
@@ -461,11 +473,19 @@ public partial class DrivesPaneViewModel : ViewModelBase
         }
 
         Status = $"Loading {node.Name}...";
+        List<FileSystemEntry> children;
+        try
+        {
+            children = node.ScanMode == StorageScanMode.Deep
+                ? await GetDeepChildrenAsync(node.FullPath)
+                : await GetNormalChildrenAsync(node.FullPath);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            Status = $"Could not read {node.Name}: {ex.Message}";
+            return;
+        }
         node.Children.Clear();
-
-        var children = node.ScanMode == StorageScanMode.Deep
-            ? await GetDeepChildrenAsync(node.FullPath)
-            : await GetNormalChildrenAsync(node.FullPath);
 
         foreach (var child in children)
         {
@@ -519,23 +539,11 @@ public partial class DrivesPaneViewModel : ViewModelBase
             .ToList();
     }
 
-    private async Task<List<FileSystemEntry>> GetDeepChildrenAsync(string folderPath)
+    private Task<List<FileSystemEntry>> GetDeepChildrenAsync(string folderPath)
     {
-        try
-        {
-            if (_deepScanSession is null)
-            {
-                Status = "Run Deep Scan again before expanding protected folders.";
-                return [];
-            }
-
-            return await _deepScanSession.LoadChildrenAsync(folderPath);
-        }
-        catch
-        {
-            Status = $"Could not deep expand {Path.GetFileName(folderPath)}.";
-            return [];
-        }
+        if (_deepScanSession is null)
+            throw new InvalidOperationException("Run Deep Scan again before expanding protected folders.");
+        return _deepScanSession.LoadChildrenAsync(folderPath);
     }
 
     private static FileSystemNode CreatePlaceholderNode() => new()
@@ -567,6 +575,7 @@ public partial class DrivesPaneViewModel : ViewModelBase
         try
         {
             await EnsureChildrenLoadedAsync(node);
+            if (!node.HasLoadedChildren) return;
 
             var children = node.Children.Where(c => !c.IsPlaceholder).ToList();
             var totalBytes = children.Sum(c => c.Bytes);
@@ -648,6 +657,10 @@ public partial class DrivesPaneViewModel : ViewModelBase
 
                 row.HasLoadedChildren = true;
             });
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            Status = $"Could not read {row.Name}: {ex.Message}";
         }
         finally
         {
@@ -756,9 +769,11 @@ public partial class DrivesPaneViewModel : ViewModelBase
             : $"{row.SyntheticKind}:{row.FullPath}";
     }
 
-    private void RefreshDriveCapacity()
+    private async Task RefreshDriveCapacityAsync()
     {
-        if (SelectedDrive is null || !SelectedDrive.IsReady)
+        var drive = SelectedDrive;
+        var request = ++_capacityRequest;
+        if (drive is null)
         {
             TotalCapacityBytes = 0;
             UsedSpaceBytes = 0;
@@ -767,9 +782,11 @@ public partial class DrivesPaneViewModel : ViewModelBase
             return;
         }
 
-        var total = SelectedDrive.TotalSize;
-        var available = SelectedDrive.AvailableFreeSpace;
-        var used = Math.Max(0, total - available);
+        var capacity = await Task.Run(() => DriveCapacitySnapshot.Read(drive));
+        if (request != _capacityRequest || !ReferenceEquals(drive, SelectedDrive)) return;
+        var total = capacity.Total;
+        var available = capacity.Available;
+        var used = capacity.Used;
         var ratio = total > 0 ? used / (double)total : 0d;
 
         TotalCapacityBytes = total;

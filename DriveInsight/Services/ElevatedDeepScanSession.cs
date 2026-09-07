@@ -27,7 +27,10 @@ public sealed class ElevatedDeepScanSession : IAsyncDisposable
         writer = new StreamWriter(pipe) { AutoFlush = true };
     }
 
-    public static async Task<ElevatedDeepScanSession?> StartAsync(string processPath)
+    public static Task<ElevatedDeepScanSession?> StartAsync(string processPath) =>
+        Task.Run(() => StartCoreAsync(processPath));
+
+    private static async Task<ElevatedDeepScanSession?> StartCoreAsync(string processPath)
     {
         var pipeName = $"DriveInsightDeepScan-{Guid.NewGuid():N}";
         var pipe = new NamedPipeServerStream(
@@ -56,7 +59,8 @@ public sealed class ElevatedDeepScanSession : IAsyncDisposable
                 return null;
             }
 
-            await pipe.WaitForConnectionAsync();
+            using var connectionTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            await pipe.WaitForConnectionAsync(connectionTimeout.Token).ConfigureAwait(false);
             return new ElevatedDeepScanSession(process, pipe);
         }
         catch
@@ -76,7 +80,8 @@ public sealed class ElevatedDeepScanSession : IAsyncDisposable
 
         return new DriveScanner.TopFolderScanResult(
             response.TopFolders ?? [],
-            Math.Max(0, response.RootBytes));
+            Math.Max(0, response.RootBytes), response.FileCount, response.UnreadableDirectories,
+            response.SkippedLinks, response.ElapsedSeconds);
     }
 
     public async Task<List<FileSystemEntry>> LoadChildrenAsync(string folderPath)
@@ -90,7 +95,10 @@ public sealed class ElevatedDeepScanSession : IAsyncDisposable
         return response.Children ?? [];
     }
 
-    private async Task<ElevatedScanResponse> SendAsync(ElevatedScanRequest request)
+    private Task<ElevatedScanResponse> SendAsync(ElevatedScanRequest request) =>
+        Task.Run(() => SendCoreAsync(request));
+
+    private async Task<ElevatedScanResponse> SendCoreAsync(ElevatedScanRequest request)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
 
@@ -119,7 +127,9 @@ public sealed class ElevatedDeepScanSession : IAsyncDisposable
         }
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync() => new(Task.Run(DisposeCoreAsync));
+
+    private async Task DisposeCoreAsync()
     {
         if (disposed)
         {
@@ -199,6 +209,11 @@ public sealed class ElevatedScanResponse
     public List<FolderStat>? TopFolders { get; init; }
 
     public long RootBytes { get; init; }
+
+    public long FileCount { get; init; }
+    public int UnreadableDirectories { get; init; }
+    public int SkippedLinks { get; init; }
+    public double ElapsedSeconds { get; init; }
 
     public List<FileSystemEntry>? Children { get; init; }
 }

@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DriveInsight.Services;
@@ -33,11 +34,7 @@ public partial class MainWindowViewModel : ViewModelBase
             IconKey = "Home",
             IconPathData = "M2,2 H10 V10 H2 Z M14,2 H22 V10 H14 Z M2,14 H10 V22 H2 Z M14,14 H22 V22 H14 Z",
             Content = dashboardPaneContent = new DashboardPaneViewModel(
-                () =>
-                {
-                    drivesPaneContent.RefreshAvailableDrives();
-                    return Task.CompletedTask;
-                },
+                () => drivesPaneContent.RefreshAvailableDrivesAsync(),
                 confirmationDialog,
                 cleanupReviewDialog)
         };
@@ -89,6 +86,14 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var pane in Panes)
         {
             pane.IsActive = ReferenceEquals(pane, value);
+            if (pane.Content is StorageBreakdownPaneViewModel storage)
+            {
+                if (!pane.IsActive) storage.SetActive(false);
+                else Dispatcher.UIThread.Post(() =>
+                {
+                    if (pane.IsActive) storage.SetActive(true);
+                }, DispatcherPriority.Background);
+            }
         }
     }
 

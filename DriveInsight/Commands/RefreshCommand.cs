@@ -18,7 +18,7 @@ public static class RefreshCommand
                 try
                 {
                     dashboard.IsRefreshing = true;
-                    dashboard.LoadDriveCapacity();
+                    await dashboard.LoadDriveCapacityAsync();
                     await dashboard.LoadBiggestFilesAndInsightsAsync();
                     await dashboard.RefreshLinkedPanesAsync();
                 }

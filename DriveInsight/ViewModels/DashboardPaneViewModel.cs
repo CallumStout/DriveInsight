@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DriveInsight.Commands;
+using DriveInsight.Models;
 using DriveInsight.Services;
 using DriveInsight.Utilities;
 
@@ -22,6 +23,10 @@ public partial class DashboardPaneViewModel : ViewModelBase
     private readonly ICleanupReviewDialogService _cleanupReviewDialog;
     private readonly HashSet<string> _dismissedInsightIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly Func<Task>? _afterRefresh;
+    private int _largestScanVersion;
+
+    [ObservableProperty]
+    private string largestFilesScanStatus = "Scanning for largest files...";
 
     public ObservableCollection<DriveCapacityCardViewModel> DriveBreakdowns { get; } = [];
     public ObservableCollection<LargestFileViewModel> LargestFiles { get; } = [];
@@ -112,19 +117,19 @@ public partial class DashboardPaneViewModel : ViewModelBase
         }
     }
 
-    internal void LoadDriveCapacity()
+    internal async Task LoadDriveCapacityAsync()
     {
-        var drives = _scanner.GetReadyDrives().ToList();
+        var capacities = await Task.Run(() => _scanner.GetReadyDrives().Select(DriveCapacitySnapshot.Read).ToList());
         var totalCapacity = 0L;
         var totalUsed = 0L;
 
         DriveBreakdowns.Clear();
 
-        foreach (var drive in drives)
+        foreach (var capacity in capacities)
         {
-            var total = drive.TotalSize;
-            var available = drive.AvailableFreeSpace;
-            var used = Math.Max(0, total - available);
+            var drive = capacity.Drive;
+            var total = capacity.Total;
+            var used = capacity.Used;
             var usedPercent = total > 0 ? used / (double)total * 100d : 0d;
 
             totalCapacity += total;
@@ -151,23 +156,22 @@ public partial class DashboardPaneViewModel : ViewModelBase
 
     internal async Task LoadBiggestFilesAndInsightsAsync()
     {
+        var version = ++_largestScanVersion;
         try
         {
             IsLoadingLargestFiles = true;
-            var drives = _scanner.GetReadyDrives().ToList();
-            var topFiles = await _scanner.GetTopFilesAcrossDrivesAsync(drives, 5);
-
-            LargestFiles.Clear();
-            foreach (var file in topFiles)
+            LargestFilesScanStatus = "Scanning for largest files...";
+            var drives = await Task.Run(() => _scanner.GetReadyDrives().ToList());
+            var progress = new Progress<IReadOnlyList<FileSystemEntry>>(files =>
             {
-                LargestFiles.Add(new LargestFileViewModel
+                if (version == _largestScanVersion && IsLoadingLargestFiles)
                 {
-                    Name = file.Name,
-                    FilePath = file.FullPath,
-                    SizeBytes = file.Bytes,
-                    Category = ResolveCategory(file.Name)
-                });
-            }
+                    ShowLargestFiles(files);
+                    LargestFilesScanStatus = "Scanning — showing largest files found so far...";
+                }
+            });
+            var topFiles = await _scanner.GetTopFilesAcrossDrivesAsync(drives, 5, progress: progress);
+            ShowLargestFiles(topFiles);
         }
         catch
         {
@@ -178,6 +182,17 @@ public partial class DashboardPaneViewModel : ViewModelBase
             IsLoadingLargestFiles = false;
             await BuildSmartInsightsAsync();
         }
+    }
+
+    private void ShowLargestFiles(IReadOnlyList<FileSystemEntry> files)
+    {
+        LargestFiles.Clear();
+        foreach (var file in files)
+            LargestFiles.Add(new LargestFileViewModel
+            {
+                Name = file.Name, FilePath = file.FullPath, SizeBytes = file.Bytes,
+                Category = ResolveCategory(file.Name)
+            });
     }
 
     internal Task RefreshLinkedPanesAsync() => _afterRefresh?.Invoke() ?? Task.CompletedTask;
@@ -206,7 +221,7 @@ public partial class DashboardPaneViewModel : ViewModelBase
         }
 
         var windowsOldPath = WindowsOldPath;
-        if (Directory.Exists(windowsOldPath))
+        if (await Task.Run(() => Directory.Exists(windowsOldPath)))
         {
             try
             {
@@ -356,7 +371,7 @@ public partial class DashboardPaneViewModel : ViewModelBase
     private async Task RefreshAfterCleanupAsync()
     {
         _scanner.ClearCache();
-        LoadDriveCapacity();
+        await LoadDriveCapacityAsync();
         await LoadBiggestFilesAndInsightsAsync();
         await RefreshLinkedPanesAsync();
     }
