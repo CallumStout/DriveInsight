@@ -24,8 +24,8 @@ public partial class DrivesPaneViewModel : ViewModelBase
     private ElevatedDeepScanSession? _deepScanSession;
     private int _capacityRequest;
     public Task Initialization { get; }
-    private const string FolderIconPathData = "M3,7 A2,2 0 0 1 5,5 H10 L12,7 H19 A2,2 0 0 1 21,9 V18 A2,2 0 0 1 19,20 H5 A2,2 0 0 1 3,18 Z";
-    private const string FileIconPathData = "M6,2 H14 L20,8 V22 H6 Z M14,2 V8 H20";
+    private const string FolderIconPathData = AppIcons.Folder;
+    private const string FileIconPathData = AppIcons.File;
     private const string OtherScannedSpaceName = "Other scanned files";
     private const string NormalUnscannedSpaceName = "System / protected / unscanned";
     private const string DeepUnattributedSpaceName = "Unattributed system space";

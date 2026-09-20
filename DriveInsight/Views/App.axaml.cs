@@ -7,12 +7,12 @@ namespace DriveInsight.Views;
 
 public partial class App : Application
 {
-    private readonly AppThemeService themeService = new();
+    internal static IAppThemeService ThemeService { get; } = new AppThemeService();
 
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        themeService.ApplySavedTheme(this);
+        ThemeService.ApplySavedTheme(this);
     }
 
     public override void OnFrameworkInitializationCompleted()

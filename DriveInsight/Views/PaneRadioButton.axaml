@@ -1,99 +1,43 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
-             d:DesignWidth="220"
-             d:DesignHeight="52"
-             x:Class="DriveInsight.Views.PaneRadioButton"
-             x:Name="Root">
-
+             xmlns:controls="using:DriveInsight.Views.Controls"
+             x:Class="DriveInsight.Views.PaneRadioButton" x:Name="Root">
     <UserControl.Styles>
         <Style Selector="RadioButton#PaneButton">
+            <Setter Property="Foreground" Value="{DynamicResource AppSecondaryTextBrush}" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
         </Style>
-
         <Style Selector="RadioButton#PaneButton:pointerover">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
         </Style>
-
-        <Style Selector="RadioButton#PaneButton:pressed">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-        </Style>
-
         <Style Selector="RadioButton#PaneButton:checked">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-        </Style>
-
-        <Style Selector="RadioButton#PaneButton:checked:pointerover">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-        </Style>
-
-        <Style Selector="RadioButton#PaneButton /template/ Border#SelectionBar">
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-
-        <Style Selector="RadioButton#PaneButton /template/ Path#PaneIcon">
-            <Setter Property="Fill" Value="{DynamicResource AppMutedTextBrush}" />
-        </Style>
-
-        <Style Selector="RadioButton#PaneButton /template/ TextBlock#PaneText">
-            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
-
-        <Style Selector="RadioButton#PaneButton:checked /template/ Border#SelectionBar">
-            <Setter Property="Background" Value="{DynamicResource AppAccentBrush}" />
-        </Style>
-
-        <Style Selector="RadioButton#PaneButton:checked /template/ Path#PaneIcon">
-            <Setter Property="Fill" Value="{DynamicResource AppAccentBrush}" />
-        </Style>
-
-        <Style Selector="RadioButton#PaneButton:checked /template/ TextBlock#PaneText">
+            <Setter Property="Background" Value="{DynamicResource AppSelectionBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
         </Style>
-
-        <Style Selector="RadioButton#PaneButton:disabled /template/ Path#PaneIcon">
-            <Setter Property="Fill" Value="{DynamicResource AppDisabledTextBrush}" />
+        <Style Selector="RadioButton#PaneButton:focus-visible /template/ Border#NavSurface">
+            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
         </Style>
-
-        <Style Selector="RadioButton#PaneButton:disabled /template/ TextBlock#PaneText">
-            <Setter Property="Foreground" Value="{DynamicResource AppDisabledTextBrush}" />
+        <Style Selector="RadioButton#PaneButton:disabled">
+            <Setter Property="Opacity" Value="0.5" />
         </Style>
     </UserControl.Styles>
-
-    <RadioButton x:Name="PaneButton"
+    <RadioButton x:Name="PaneButton" Margin="0,0,0,6"
+                 AutomationProperties.Name="{Binding Text, ElementName=Root}"
                  Command="{Binding Command, ElementName=Root}"
                  CommandParameter="{Binding CommandParameter, ElementName=Root}"
                  IsChecked="{Binding IsChecked, ElementName=Root, Mode=OneWay}">
         <RadioButton.Template>
             <ControlTemplate>
-                <Grid ColumnDefinitions="4,*,Auto" Height="25" Margin="0,8" Background="Transparent">
-                    <Border x:Name="SelectionBar"
-                            Grid.Column="0"
-                            CornerRadius="3" />
-                    <Grid Grid.Column="1" ColumnDefinitions="22,*" Margin="12,0,10,0" VerticalAlignment="Center">
-                        <Path x:Name="PaneIcon"
-                              Grid.Column="0"
-                              Width="18"
-                              Height="10"
-                              Stretch="Uniform"
-                              Data="{Binding IconData, ElementName=Root}" />
-                        <TextBlock x:Name="PaneText"
-                                   Grid.Column="1"
-                                   Margin="10,0,0,0"
-                                   VerticalAlignment="Center"
-                                   Text="{Binding Text, ElementName=Root}" />
+                <Border x:Name="NavSurface" Background="{TemplateBinding Background}"
+                        BorderBrush="Transparent" BorderThickness="1" CornerRadius="7" Padding="12,11">
+                    <Grid ColumnDefinitions="20,*" ColumnSpacing="11">
+                        <controls:AppIcon Data="{Binding IconData, ElementName=Root}" Foreground="{TemplateBinding Foreground}" />
+                        <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=Root}"
+                                   Foreground="{TemplateBinding Foreground}" FontSize="12" FontWeight="Medium" VerticalAlignment="Center" />
                     </Grid>
-                </Grid>
+                </Border>
             </ControlTemplate>
         </RadioButton.Template>
     </RadioButton>

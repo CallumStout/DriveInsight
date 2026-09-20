@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Styling;
 using DriveInsight.Services;
 using System.Windows.Input;
 
@@ -7,7 +8,8 @@ namespace DriveInsight.Views.Controls;
 
 public partial class HeaderPane : UserControl
 {
-    private readonly IAppThemeService themeService = new AppThemeService();
+    private readonly IAppThemeService themeService = App.ThemeService;
+    private bool synchronizingTheme;
 
     public static readonly StyledProperty<bool> IsDarkModeProperty =
         AvaloniaProperty.Register<HeaderPane, bool>(nameof(IsDarkMode), false);
@@ -147,14 +149,44 @@ public partial class HeaderPane : UserControl
     public HeaderPane()
     {
         InitializeComponent();
-        SetCurrentValue(IsDarkModeProperty, themeService.IsDarkMode);
+        SynchronizeTheme();
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        if (Application.Current is { } application)
+            application.ActualThemeVariantChanged += OnApplicationThemeChanged;
+        SynchronizeTheme();
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if (Application.Current is { } application)
+            application.ActualThemeVariantChanged -= OnApplicationThemeChanged;
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    private void OnApplicationThemeChanged(object? sender, System.EventArgs e) => SynchronizeTheme();
+
+    private void SynchronizeTheme()
+    {
+        synchronizingTheme = true;
+        try
+        {
+            SetCurrentValue(IsDarkModeProperty, Application.Current?.ActualThemeVariant == ThemeVariant.Dark);
+        }
+        finally
+        {
+            synchronizingTheme = false;
+        }
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == IsDarkModeProperty && change.NewValue is bool isDarkMode)
+        if (!synchronizingTheme && change.Property == IsDarkModeProperty && change.NewValue is bool isDarkMode)
         {
             themeService.SetDarkMode(isDarkMode);
         }

@@ -4,6 +4,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DriveInsight.Services;
+using DriveInsight.Utilities;
 
 namespace DriveInsight.ViewModels;
 
@@ -32,7 +33,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Id = "dashboard",
             Title = "Dashboard",
             IconKey = "Home",
-            IconPathData = "M2,2 H10 V10 H2 Z M14,2 H22 V10 H14 Z M2,14 H10 V22 H2 Z M14,14 H22 V22 H14 Z",
+            IconPathData = AppIcons.Dashboard,
             Content = dashboardPaneContent = new DashboardPaneViewModel(
                 () => drivesPaneContent.RefreshAvailableDrivesAsync(),
                 confirmationDialog,
@@ -44,7 +45,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Id = "drives",
             Title = "Drives",
             IconKey = "Drive",
-            IconPathData = "M3,4 H21 V8 H3 Z M3,10 H21 V14 H3 Z M3,16 H21 V20 H3 Z",
+            IconPathData = AppIcons.Drive,
             Content = drivesPaneContent
         };
 
@@ -53,7 +54,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Id = "breakdown",
             Title = "Storage Breakdown",
             IconKey = "Storage",
-            IconPathData = "M12,2 A10,10 0 1 0 22,12 H12 Z M14,2.2 V10 H21.8 A10,10 0 0 0 14,2.2 Z",
+            IconPathData = AppIcons.Storage,
             Content = storagePaneContent
         };
 

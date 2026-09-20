@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="DriveInsight.Views.Controls.AppIcon"
+             x:Name="Root"
+             Width="18" Height="18"
+             Focusable="False" IsHitTestVisible="False">
+    <Viewbox Stretch="Uniform">
+        <Canvas Width="24" Height="24">
+            <Path Data="{Binding Data, ElementName=Root}"
+                  Stroke="{Binding Foreground, ElementName=Root}"
+                  StrokeThickness="1.7" StrokeLineCap="Round" StrokeJoin="Round" />
+        </Canvas>
+    </Viewbox>
+</UserControl>

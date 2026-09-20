@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
+using DriveInsight.Utilities;
 
 namespace DriveInsight.ViewModels;
 
@@ -19,17 +20,13 @@ public partial class InsightCardViewModel : ViewModelBase
     public IAsyncRelayCommand? ActionCommand { get; init; }
     public IRelayCommand? DismissCommand { get; set; }
 
-    public string AccentColor => Kind switch
-    {
-        InsightKind.Critical => "#D93636",
-        InsightKind.Warning => "#D1791A",
-        _ => "#1E63FF"
-    };
+    public bool IsCritical => Kind == InsightKind.Critical;
+    public bool IsWarning => Kind == InsightKind.Warning;
 
-    public string Icon => Kind switch
+    public string IconPathData => Kind switch
     {
-        InsightKind.Critical => "\u25B2",
-        InsightKind.Warning => "\u25A0",
-        _ => "\u25CF"
+        InsightKind.Critical => AppIcons.Warning,
+        InsightKind.Warning => AppIcons.Info,
+        _ => AppIcons.Spark
     };
 }

@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="using:DriveInsight.Views.Controls"
+             xmlns:icons="using:DriveInsight.Utilities"
              xmlns:viewModels="using:DriveInsight.ViewModels"
              mc:Ignorable="d"
              d:DesignWidth="1120"
@@ -10,16 +11,34 @@
              x:Class="DriveInsight.Views.DashBoardPaneView">
 
     <UserControl.Styles>
-        <Style Selector="Border.SectionCard">
-            <Setter Property="Background" Value="{DynamicResource AppPanelBackgroundBrush}" />
-            <Setter Property="CornerRadius" Value="16" />
-            <Setter Property="Padding" Value="20" />
-        </Style>
-
         <Style Selector="ProgressBar.DashboardProgress">
-            <Setter Property="Height" Value="10" />
+            <Setter Property="Height" Value="6" />
             <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
             <Setter Property="Background" Value="{DynamicResource AppProgressTrackBrush}" />
+        </Style>
+        <Style Selector="controls|AppIcon.InsightIcon">
+            <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
+        </Style>
+        <Style Selector="controls|AppIcon.InsightIcon.Critical">
+            <Setter Property="Foreground" Value="{DynamicResource AppCriticalBrush}" />
+        </Style>
+        <Style Selector="controls|AppIcon.InsightIcon.Warning">
+            <Setter Property="Foreground" Value="{DynamicResource AppWarningBrush}" />
+        </Style>
+        <Style Selector="TextBlock.CapacityValue">
+            <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
+        </Style>
+        <Style Selector="TextBlock.CapacityValue.Warning">
+            <Setter Property="Foreground" Value="{DynamicResource AppWarningBrush}" />
+        </Style>
+        <Style Selector="TextBlock.CapacityValue.Critical">
+            <Setter Property="Foreground" Value="{DynamicResource AppCriticalBrush}" />
+        </Style>
+        <Style Selector="ProgressBar.DashboardProgress.Warning">
+            <Setter Property="Foreground" Value="{DynamicResource AppWarningBrush}" />
+        </Style>
+        <Style Selector="ProgressBar.DashboardProgress.Critical">
+            <Setter Property="Foreground" Value="{DynamicResource AppCriticalBrush}" />
         </Style>
     </UserControl.Styles>
 
@@ -40,7 +59,7 @@
                              ShowUpdateStatus="{Binding HasUpdateStatus}" />
 
         <ScrollViewer Grid.Row="1"
-                      Margin="16,14,16,0"
+                      Margin="24,24,24,24"
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="18">
@@ -49,50 +68,50 @@
                     <Border Classes="SectionCard"
                             VerticalAlignment="Top">
                         <StackPanel Spacing="18">
-                            <TextBlock Text="SYSTEM CAPACITY"
+                            <TextBlock Text="System capacity"
                                        Foreground="{DynamicResource AppAccentBrush}"
                                        FontSize="13"
-                                       FontWeight="Bold" />
+                                       FontWeight="SemiBold" />
 
                             <StackPanel Orientation="Horizontal"
                                         VerticalAlignment="Bottom"
                                         Spacing="10">
                                 <TextBlock Text="{Binding TotalUsedText}"
-                                           FontSize="54"
-                                           FontWeight="Bold"
+                                           FontSize="44"
+                                           FontWeight="SemiBold"
                                            Foreground="{DynamicResource AppStrongTextBrush}" />
                                 <TextBlock Text="USED"
                                            Margin="0,24,0,0"
-                                           FontSize="22"
+                                           FontSize="13"
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource AppSecondaryTextBrush}" />
                                 <TextBlock Text="/"
                                            Margin="0,20,0,0"
-                                           FontSize="28"
+                                           FontSize="22"
                                            Foreground="{DynamicResource AppMutedTextBrush}" />
                                 <TextBlock Text="{Binding TotalCapacityText}"
                                            Margin="0,16,0,0"
-                                           FontSize="34"
+                                           FontSize="20"
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource AppPrimaryTextBrush}" />
                                 <TextBlock Text="TOTAL"
                                            Margin="0,25,0,0"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
+                                           FontSize="13"
+                                           FontWeight="Medium"
                                            Foreground="{DynamicResource AppMutedTextBrush}" />
                             </StackPanel>
 
                             <Grid ColumnDefinitions="*,Auto"
                                   ColumnSpacing="10">
-                                <TextBlock Text="TOTAL UTILIZATION"
+                                <TextBlock Text="Total utilization"
                                            Foreground="{DynamicResource AppSecondaryTextBrush}"
                                            FontSize="12"
-                                           FontWeight="Bold" />
+                                           FontWeight="SemiBold" />
                                 <TextBlock Grid.Column="1"
                                            Text="{Binding TotalUtilizationText}"
                                            Foreground="{DynamicResource AppAccentBrush}"
                                            FontSize="13"
-                                           FontWeight="Bold" />
+                                           FontWeight="SemiBold" />
                             </Grid>
 
                             <ProgressBar Classes="DashboardProgress"
@@ -117,17 +136,17 @@
                                               ColumnSpacing="8">
                                             <TextBlock Text="{Binding DriveName}"
                                                        FontSize="14"
-                                                       FontWeight="Bold"
+                                                       FontWeight="SemiBold"
                                                        Foreground="{DynamicResource AppPrimaryTextBrush}" />
                                             <TextBlock Grid.Column="1"
                                                        Text="{Binding PercentageText}"
                                                        FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Foreground="{Binding ProgressBrush}" />
+                                                       FontWeight="SemiBold"
+                                                       Classes="CapacityValue" Classes.Warning="{Binding IsWarning}" Classes.Critical="{Binding IsCritical}" />
                                         </Grid>
 
                                         <ProgressBar Classes="DashboardProgress"
-                                                     Foreground="{Binding ProgressBrush}"
+                                                     Classes.Warning="{Binding IsWarning}" Classes.Critical="{Binding IsCritical}"
                                                      Value="{Binding UsedPercent}"
                                                      Maximum="100" />
 
@@ -149,9 +168,9 @@
                         <StackPanel Spacing="12">
                             <Grid ColumnDefinitions="*,Auto"
                                   ColumnSpacing="10">
-                                <TextBlock Text="Largest Items"
-                                           FontSize="34"
-                                           FontWeight="Bold"
+                                <TextBlock Text="Largest items"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
                                            Foreground="{DynamicResource AppPrimaryTextBrush}" />
                             </Grid>
 
@@ -165,20 +184,16 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="viewModels:LargestFileViewModel">
                                         <Border Background="{DynamicResource AppSubtleCardBackgroundBrush}"
-                                                CornerRadius="12"
+                                                CornerRadius="7"
                                                 Padding="12"
                                                 Margin="0,0,0,8">
                                             <Grid ColumnDefinitions="Auto,*,Auto"
                                                   ColumnSpacing="10">
-                                                <Border Width="30"
-                                                        Height="30"
+                                                <Border Width="34"
+                                                        Height="34"
                                                         CornerRadius="8"
-                                                        Background="{DynamicResource AppControlBackgroundBrush}">
-                                                    <TextBlock Text="*"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"
-                                                               Foreground="{DynamicResource AppAccentBrush}"
-                                                               FontSize="8" />
+                                                        Background="{DynamicResource AppBadgeBackgroundBrush}">
+                                                    <controls:AppIcon Data="{x:Static icons:AppIcons.File}" Foreground="{DynamicResource AppSecondaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                 </Border>
 
                                                 <StackPanel Grid.Column="1"
@@ -199,12 +214,12 @@
                                                             Spacing="2">
                                                     <TextBlock Text="{Binding SizeText}"
                                                                FontSize="14"
-                                                               FontWeight="Bold"
+                                                               FontWeight="SemiBold"
                                                                Foreground="{DynamicResource AppPrimaryTextBrush}"
                                                                HorizontalAlignment="Right" />
                                                     <TextBlock Text="{Binding Category}"
                                                                FontSize="10"
-                                                               FontWeight="Bold"
+                                                               FontWeight="SemiBold"
                                                                Foreground="{DynamicResource AppAccentBrush}"
                                                                HorizontalAlignment="Right" />
                                                 </StackPanel>
@@ -219,39 +234,35 @@
                     <Border Classes="SectionCard"
                             Grid.Column="1">
                         <StackPanel Spacing="12">
-                            <TextBlock Text="Smart Insights"
-                                       FontSize="34"
-                                       FontWeight="Bold"
+                            <TextBlock Text="Smart insights"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
                                        Foreground="{DynamicResource AppPrimaryTextBrush}" />
 
                             <ItemsControl ItemsSource="{Binding SmartInsights}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="viewModels:InsightCardViewModel">
                                         <Border Background="{DynamicResource AppCardBackgroundBrush}"
-                                                BorderBrush="{Binding AccentColor}"
-                                                BorderThickness="3,0,0,0"
-                                                CornerRadius="12"
+                                                BorderBrush="{DynamicResource AppSoftBorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="7"
                                                 Padding="12"
                                                 Margin="0,0,0,8">
                                             <StackPanel Spacing="6">
-                                                <StackPanel Orientation="Horizontal"
-                                                            Spacing="8">
-                                                    <TextBlock Text="{Binding Icon}"
-                                                               Foreground="{Binding AccentColor}"
-                                                               FontSize="11"
-                                                               Margin="0,2,0,0" />
-                                                    <TextBlock Text="{Binding Title}"
+                                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                                    <controls:AppIcon Classes="InsightIcon" Classes.Critical="{Binding IsCritical}" Classes.Warning="{Binding IsWarning}" Data="{Binding IconPathData}" VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding Title}"
                                                                Foreground="{DynamicResource AppPrimaryTextBrush}"
                                                                FontSize="14"
-                                                               FontWeight="Bold" />
-                                                </StackPanel>
+                                                               FontWeight="SemiBold" />
+                                                </Grid>
                                                 <TextBlock Text="{Binding Message}"
                                                            Foreground="{DynamicResource AppSecondaryTextBrush}"
                                                            FontSize="12"
                                                            TextWrapping="Wrap" />
                                                 <StackPanel Orientation="Horizontal"
                                                             Spacing="10">
-                                                    <Button Content="{Binding ActionText}"
+                                                    <Button Classes="TextAction" Content="{Binding ActionText}"
                                                             Command="{Binding ActionCommand}"
                                                             HorizontalAlignment="Left"
                                                             HorizontalContentAlignment="Center"
@@ -259,10 +270,10 @@
                                                             Padding="10,5"
                                                             Background="Transparent"
                                                             BorderThickness="0"
-                                                            Foreground="{Binding AccentColor}"
+                                                            Foreground="{DynamicResource AppAccentBrush}"
                                                             FontSize="12"
-                                                            FontWeight="Bold" />
-                                                    <Button Content="Ignore"
+                                                            FontWeight="SemiBold" />
+                                                    <Button Classes="TextAction" Content="Ignore"
                                                             Command="{Binding DismissCommand}"
                                                             HorizontalAlignment="Left"
                                                             HorizontalContentAlignment="Center"

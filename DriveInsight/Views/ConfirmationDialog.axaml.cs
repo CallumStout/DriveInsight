@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.Media;
 using DriveInsight.Services;
 
 namespace DriveInsight.Views;
@@ -35,12 +34,14 @@ public partial class ConfirmationDialog : Window
         if (kind == ConfirmationKind.Info)
         {
             WarningBox.IsVisible = false;
-            ConfirmButton.Background = SolidColorBrush.Parse("#1E63FF");
+            ConfirmButton.Classes.Remove("Danger");
+            ConfirmButton.Classes.Add("Primary");
         }
         else
         {
             WarningBox.IsVisible = true;
-            ConfirmButton.Background = SolidColorBrush.Parse("#D93636");
+            ConfirmButton.Classes.Remove("Primary");
+            ConfirmButton.Classes.Add("Danger");
         }
     }
 }

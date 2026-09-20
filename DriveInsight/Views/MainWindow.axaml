@@ -1,62 +1,41 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewModels="using:DriveInsight.ViewModels"
         xmlns:views="using:DriveInsight.Views"
-        mc:Ignorable="d"
-        d:DesignWidth="1200"
-        d:DesignHeight="760"
-        MinWidth="1100"
-        MinHeight="700"
         x:Class="DriveInsight.Views.MainWindow"
-        Title="DriveInsight"
-        UseLayoutRounding="True"
-		Icon="/Assets/App.ico">
-
-
-
-	<Grid ColumnDefinitions="240,*">
-		<Border Grid.Column="0"
-                Background="{DynamicResource AppSidebarBackgroundBrush}"
-                BorderBrush="{DynamicResource AppBorderBrush}"
-                BorderThickness="0,0,1,0">
-			<Grid Margin="16"
-                  RowDefinitions="Auto,*">
-                <StackPanel Spacing="12">
-                    <Image Source="/Assets/AppLogo.png"
-                           Width="96"
-                           Height="96"
-                           Stretch="Uniform" />
-                    <TextBlock Text="DriveInsight"
-                               FontSize="26"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource AppAccentBrush}" />
+        Title="DriveInsight" Width="1280" Height="820"
+        MinWidth="1100" MinHeight="700" UseLayoutRounding="True" Icon="/Assets/App.ico">
+    <Grid ColumnDefinitions="228,*">
+        <Border Background="{DynamicResource AppSidebarBackgroundBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,1,0">
+            <Grid RowDefinitions="Auto,*,Auto" Margin="16,24,16,20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="8,0,0,0">
+                        <Image Source="/Assets/AppLogo.png" Width="34" Height="34" Stretch="Uniform" />
+                        <TextBlock Text="DriveInsight" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="STORAGE OVERVIEW" FontSize="10" LetterSpacing="1.2"
+                               Foreground="{DynamicResource AppMutedTextBrush}" Margin="12,36,0,12" />
                     <ItemsControl ItemsSource="{Binding Panes}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <views:PaneRadioButton Text="{Binding Title}"
-                                                       IconData="{Binding IconPathData}"
-                                                       IsChecked="{Binding IsActive}"
-                                                       Command="{Binding $parent[ItemsControl].DataContext.SelectPaneCommand}"
-                                                       CommandParameter="{Binding .}" />
+                                <views:PaneRadioButton Text="{Binding Title}" IconData="{Binding IconPathData}"
+                                    IsChecked="{Binding IsActive}"
+                                    Command="{Binding $parent[ItemsControl].DataContext.SelectPaneCommand}"
+                                    CommandParameter="{Binding .}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-
-                <TextBlock Grid.Row="1"
-                           Text="v1.1.1"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Bottom"
-                           Foreground="{DynamicResource AppMutedTextBrush}"
-                           FontSize="11"
-                           FontWeight="SemiBold" />
-			</Grid>
-		</Border>
-
-		<Border Grid.Column="1" Background="{DynamicResource AppWindowBackgroundBrush}" Padding="0">
-			<Grid x:Name="PaneHost" />
-		</Border>
-	</Grid>
+                <Border Grid.Row="2" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,1,0,0" Padding="8,16,8,0">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="A clearer picture." FontSize="11" Foreground="{DynamicResource AppMutedTextBrush}" />
+                        <TextBlock Grid.Column="1" Text="v1.2" FontSize="11" Foreground="{DynamicResource AppMutedTextBrush}" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+        <Border Grid.Column="1" Background="{DynamicResource AppWindowBackgroundBrush}">
+            <Grid x:Name="PaneHost" />
+        </Border>
+    </Grid>
 </Window>

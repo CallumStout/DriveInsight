@@ -9,40 +9,6 @@
         TransparencyLevelHint="Transparent"
         Background="Transparent">
 
-    <Window.Styles>
-        <Style Selector="Button.DialogSecondaryButton">
-            <Setter Property="Background" Value="{DynamicResource AppControlBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
-            <Setter Property="CornerRadius" Value="8" />
-        </Style>
-
-        <Style Selector="Button.DialogSecondaryButton:pointerover">
-            <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
-        </Style>
-
-        <Style Selector="Button.DialogSecondaryButton:pressed">
-            <Setter Property="Background" Value="{DynamicResource AppControlPressedBrush}" />
-        </Style>
-
-        <Style Selector="Button.DialogSecondaryButton /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource AppControlBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
-        </Style>
-
-        <Style Selector="Button.DialogSecondaryButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
-        </Style>
-
-        <Style Selector="Button.DialogSecondaryButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource AppControlPressedBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
-        </Style>
-    </Window.Styles>
-
     <Grid Background="{DynamicResource AppDialogOverlayBrush}">
         <Border Width="760"
                 MaxWidth="760"
@@ -61,7 +27,7 @@
                 <StackPanel Spacing="4">
                     <TextBlock Name="TitleText"
                                FontSize="22"
-                               FontWeight="Bold"
+                               FontWeight="SemiBold"
                                Foreground="{DynamicResource AppPrimaryTextBrush}"
                                TextWrapping="Wrap" />
                     <TextBlock Text="Review the suggested items before removing anything. Safer cleanup items are selected by default; personal files are left unchecked."
@@ -86,7 +52,7 @@
                         <TextBlock Grid.Column="1"
                                    Name="SelectedSizeText"
                                    FontSize="13"
-                                   FontWeight="Bold"
+                                   FontWeight="SemiBold"
                                    Foreground="{DynamicResource AppAccentBrush}" />
                     </Grid>
                 </Border>
@@ -116,7 +82,7 @@
                                                       ColumnSpacing="10">
                                                     <TextBlock Text="{Binding Name}"
                                                                FontSize="13"
-                                                               FontWeight="Bold"
+                                                               FontWeight="SemiBold"
                                                                Foreground="{DynamicResource AppPrimaryTextBrush}"
                                                                TextTrimming="CharacterEllipsis" />
                                                     <Border Grid.Column="1"
@@ -125,7 +91,7 @@
                                                             Padding="8,2">
                                                         <TextBlock Text="{Binding Risk}"
                                                                    FontSize="10"
-                                                                   FontWeight="Bold"
+                                                                   FontWeight="SemiBold"
                                                                    Foreground="{DynamicResource AppSecondaryTextBrush}" />
                                                     </Border>
                                                 </Grid>
@@ -141,7 +107,7 @@
                                             <TextBlock Grid.Column="2"
                                                        Text="{Binding SizeText}"
                                                        FontSize="13"
-                                                       FontWeight="Bold"
+                                                       FontWeight="SemiBold"
                                                        Foreground="{DynamicResource AppPrimaryTextBrush}"
                                                        VerticalAlignment="Top" />
                                         </Grid>
@@ -157,20 +123,18 @@
                             HorizontalAlignment="Right"
                             Spacing="10">
                     <Button Name="CancelButton"
-                            Classes="DialogSecondaryButton"
+
                             Content="Cancel"
                             MinWidth="96"
                             Padding="14,7"
                             HorizontalContentAlignment="Center"
                             VerticalContentAlignment="Center" />
-                    <Button Name="RemoveButton"
+                    <Button Name="RemoveButton" Classes="Danger"
                             Content="Remove selected"
                             MinWidth="132"
                             Padding="14,7"
                             HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            Background="#D93636"
-                            Foreground="#FFFFFF" />
+                            VerticalContentAlignment="Center" />
                 </StackPanel>
             </Grid>
         </Border>

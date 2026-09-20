@@ -6,6 +6,7 @@
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:paint="using:LiveChartsCore.SkiaSharpView.Painting"
              xmlns:paneControls="using:DriveInsight.Views.Controls"
+             xmlns:icons="using:DriveInsight.Utilities"
              xmlns:viewModels="using:DriveInsight.ViewModels"
              xmlns:skia="clr-namespace:SkiaSharp;assembly=SkiaSharp"
              mc:Ignorable="d"
@@ -13,102 +14,10 @@
              d:DesignHeight="760"
              x:Class="DriveInsight.Views.DrivesPaneView">
 
-    <UserControl.Styles>
-        <Style Selector="Button#ScanDriveButton">
-            <Setter Property="Background" Value="{DynamicResource AppAccentBrush}" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-        <Style Selector="Button#ScanDriveButton:pointerover">
-            <Setter Property="Background" Value="{DynamicResource AppAccentHoverBrush}" />
-            <Setter Property="Foreground" Value="White" />
-        </Style>
-        <Style Selector="Button#ScanDriveButton /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource AppAccentBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
-        </Style>
-        <Style Selector="Button#ScanDriveButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource AppAccentHoverBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentHoverBrush}" />
-        </Style>
-        <Style Selector="Button#ScanDriveButton:pressed">
-            <Setter Property="Background" Value="{DynamicResource AppAccentPressedBrush}" />
-            <Setter Property="Foreground" Value="White" />
-        </Style>
-        <Style Selector="Button#ScanDriveButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource AppAccentPressedBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentPressedBrush}" />
-        </Style>
-        <Style Selector="Button#ScanDriveButton:disabled">
-            <Setter Property="Background" Value="#AFC4F8" />
-            <Setter Property="Foreground" Value="#EEF3FF" />
-        </Style>
-
-        <Style Selector="Button#DeepScanDriveButton">
-            <Setter Property="Background" Value="{DynamicResource AppControlBackgroundBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource AppSoftBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-
-        <Style Selector="Button#DeepScanDriveButton:pointerover">
-            <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
-        </Style>
-
-        <Style Selector="Button#DeepScanDriveButton:pressed">
-            <Setter Property="Background" Value="{DynamicResource AppControlPressedBrush}" />
-        </Style>
-
-        <Style Selector="TreeDataGrid#FoldersGrid">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-        </Style>
-
-        <Style Selector="ListBox#DriveTabs">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-        </Style>
-        <Style Selector="ListBox#DriveTabs > ListBoxItem">
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Margin" Value="0,0,16,0" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
-        </Style>
-        <Style Selector="ListBox#DriveTabs > ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Padding" Value="12,4,12,4" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0,0,0,2" />
-        </Style>
-        <Style Selector="ListBox#DriveTabs > ListBoxItem:pointerover">
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-        <Style Selector="ListBox#DriveTabs > ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-        </Style>
-        <Style Selector="ListBox#DriveTabs > ListBoxItem:selected">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
-        </Style>
-        <Style Selector="ListBox#DriveTabs > ListBoxItem:selected TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
-        </Style>
-        <Style Selector="ListBox#DriveTabs > ListBoxItem:selected /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-        <Style Selector="ListBox#DriveTabs > ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
-            <Setter Property="BorderThickness" Value="0,0,0,2" />
-        </Style>
-    </UserControl.Styles>
-
     <Grid RowDefinitions="Auto,*"
           RowSpacing="0">
         <paneControls:HeaderPane Grid.Row="0"
-                                 Title="Disk Manager"
+                                 Title="Drives"
                                  ShowExportButton="True"
                                  ExportToolTip="Export CSV"
                                  ExportCommand="{Binding ExportCsvCommand}"
@@ -116,10 +25,10 @@
                                  RefreshToolTip="Refresh"
                                  RefreshCommand="{Binding RefreshAllCommand}">
             <paneControls:HeaderPane.CenterContent>
-                <ListBox x:Name="DriveTabs"
+                <ListBox Classes="DriveTabs" x:Name="DriveTabs"
                          ItemsSource="{Binding Drives}"
                          SelectedItem="{Binding SelectedDrive}"
-                         Padding="0,4,0,0">
+                         Padding="0">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />
@@ -128,9 +37,9 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name, StringFormat=Drive {0}}"
-                                       FontSize="14"
+                                       FontSize="12"
                                        FontWeight="SemiBold"
-                                       Margin="0,0,0,6" />
+                                       Margin="0" />
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -139,28 +48,32 @@
                 <StackPanel Orientation="Horizontal"
                             Spacing="12"
                             VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Status}"
-                               Foreground="{DynamicResource AppSecondaryTextBrush}"
-                               VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Status}" MaxWidth="150" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Status}" Foreground="{DynamicResource AppSecondaryTextBrush}" VerticalAlignment="Center" />
                     <Button x:Name="DeepScanDriveButton"
-                            Content="Deep Scan"
                             ToolTip.Tip="Scan protected folders with administrator access"
-                            Command="{Binding DeepScanSelectedDriveCommand}" />
-                    <Button x:Name="ScanDriveButton"
-                            Content="Run Scan"
-                            Command="{Binding ScanSelectedDriveCommand}" />
+                            Command="{Binding DeepScanSelectedDriveCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <paneControls:AppIcon Data="{x:Static icons:AppIcons.Shield}" Width="15" Height="15" />
+                            <TextBlock Text="Deep scan" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="ScanDriveButton" Classes="Primary"
+                            Command="{Binding ScanSelectedDriveCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <paneControls:AppIcon Data="{x:Static icons:AppIcons.Search}" Width="15" Height="15" />
+                            <TextBlock Text="Run scan" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </paneControls:HeaderPane.RightContent>
         </paneControls:HeaderPane>
 
         <Grid Grid.Row="1"
-              Margin="16,14,16,0"
+              Margin="24,24,24,24"
               RowDefinitions="Auto,*"
               RowSpacing="14">
             <Border Grid.Row="0"
-                    Background="{DynamicResource AppPanelBackgroundBrush}"
-                    CornerRadius="14"
-                    Padding="18">
+                    Classes="SectionCard">
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="24">
                     <Grid Width="184"
@@ -174,16 +87,16 @@
                             <lvc:PieChart.Series>
                                 <lvc:XamlGaugeSeries GaugeValue="{Binding UsedPercentage}"
                                                      DataLabelsSize="0"
-                                                     MaxRadialColumnWidth="16">
+                                                     MaxRadialColumnWidth="12">
                                     <lvc:XamlGaugeSeries.Fill>
                                         <paint:SolidColorPaint>
                                             <paint:SolidColorPaint.Color>
-                                                <skia:SKColor>#1E63FF</skia:SKColor>
+                                                <skia:SKColor>#275CE4</skia:SKColor>
                                             </paint:SolidColorPaint.Color>
                                         </paint:SolidColorPaint>
                                     </lvc:XamlGaugeSeries.Fill>
                                 </lvc:XamlGaugeSeries>
-                                <lvc:XamlGaugeBackgroundSeries MaxRadialColumnWidth="15" />
+                                <lvc:XamlGaugeBackgroundSeries MaxRadialColumnWidth="12" />
                             </lvc:PieChart.Series>
                         </lvc:PieChart>
 
@@ -191,8 +104,8 @@
                                     VerticalAlignment="Center"
                                     Spacing="2">
                             <TextBlock Text="{Binding UsedPercentageText}"
-                                       FontSize="34"
-                                       FontWeight="Bold"
+                                       FontSize="32"
+                                       FontWeight="SemiBold"
                                        HorizontalAlignment="Center" />
                             <TextBlock Text="USED"
                                        FontSize="12"
@@ -212,8 +125,8 @@
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource AppMutedTextBrush}" />
                             <TextBlock Text="{Binding TotalCapacityText}"
-                                       FontSize="30"
-                                       FontWeight="Bold" />
+                                       FontSize="28"
+                                       FontWeight="SemiBold" />
                         </StackPanel>
 
                         <StackPanel Grid.Column="1"
@@ -223,8 +136,8 @@
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource AppAccentBrush}" />
                             <TextBlock Text="{Binding UsedSpaceText}"
-                                       FontSize="24"
-                                       FontWeight="Bold" />
+                                       FontSize="22"
+                                       FontWeight="SemiBold" />
                         </StackPanel>
 
                         <StackPanel Grid.Column="2"
@@ -235,7 +148,7 @@
                                        Foreground="{DynamicResource AppMutedTextBrush}" />
                             <TextBlock Text="{Binding AvailableSpaceText}"
                                        FontSize="24"
-                                       FontWeight="Bold" />
+                                       FontWeight="SemiBold" />
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -243,7 +156,7 @@
 
             <TreeDataGrid Grid.Row="1"
                           x:Name="FoldersGrid"
-                          Margin="8,0,30,0"
+                          Margin="0"
                           Source="{Binding FolderRowsSource}" />
         </Grid>
     </Grid>

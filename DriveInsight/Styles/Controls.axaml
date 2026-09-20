@@ -1,0 +1,123 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="Window">
+        <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
+        <Setter Property="Background" Value="{DynamicResource AppWindowBackgroundBrush}" />
+    </Style>
+    <Style Selector="Border.SectionCard, Border.StoragePanel">
+        <Setter Property="Background" Value="{DynamicResource AppPanelBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+    <Style Selector="Button">
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="12,7" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Background" Value="{DynamicResource AppControlBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+    </Style>
+    <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppControlPressedBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
+    </Style>
+    <Style Selector="Button.Primary">
+        <Setter Property="Background" Value="{DynamicResource AppPrimaryButtonBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppPrimaryButtonBrush}" />
+    </Style>
+    <Style Selector="Button.Primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppAccentHoverBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppAccentHoverBrush}" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.Primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppAccentPressedBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppAccentPressedBrush}" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.Danger">
+        <Setter Property="Background" Value="{DynamicResource AppDangerBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppDangerBrush}" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.Danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppDangerHoverBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppDangerHoverBrush}" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.Danger:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppDangerPressedBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppDangerPressedBrush}" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button:disabled">
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
+    <Style Selector="Button.IconButton">
+        <Setter Property="Width" Value="34" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource AppSecondaryTextBrush}" />
+    </Style>
+    <Style Selector="Button.TextAction">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
+    </Style>
+    <Style Selector="ListBox.DriveTabs">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+    <Style Selector="ListBox.DriveTabs > ListBoxItem">
+        <Setter Property="Padding" Value="10,7" />
+        <Setter Property="Margin" Value="0,0,4,0" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Foreground" Value="{DynamicResource AppSecondaryTextBrush}" />
+    </Style>
+    <Style Selector="ListBox.DriveTabs > ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="6" />
+    </Style>
+    <Style Selector="ListBox.DriveTabs > ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppControlHoverBrush}" />
+    </Style>
+    <Style Selector="ListBox.DriveTabs > ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppSelectionBrush}" />
+    </Style>
+    <Style Selector="ListBox.DriveTabs > ListBoxItem:selected TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
+    </Style>
+    <Style Selector="TreeDataGrid">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="TreeDataGridRow">
+        <Setter Property="MinHeight" Value="36" />
+    </Style>
+    <Style Selector="TreeDataGridColumnHeader">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{DynamicResource AppSecondaryTextBrush}" />
+        <Setter Property="MinHeight" Value="38" />
+    </Style>
+</Styles>

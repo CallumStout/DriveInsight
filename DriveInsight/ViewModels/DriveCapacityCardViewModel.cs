@@ -12,4 +12,6 @@ public partial class DriveCapacityCardViewModel : ViewModelBase
 
     public string UsageText => $"{StorageFormatter.Format(UsedBytes)} of {StorageFormatter.Format(TotalBytes)}";
     public string PercentageText => $"{UsedPercent:0}%";
+    public bool IsWarning => UsedPercent >= 75 && UsedPercent < 90;
+    public bool IsCritical => UsedPercent >= 90;
 }
